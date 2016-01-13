@@ -1,0 +1,5 @@
+Apache Tamaya (incubating)
+Copyright 2016 The DJPaas Team
+
+This product includes/uses software developed at
+The Apache Software Foundation (http://www.apache.org/).

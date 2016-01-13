@@ -1,0 +1,55 @@
+package io.github.djpaas.machine;
+
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
+
+/**
+ * Created by atsticks on 12.01.16.
+ */
+public class MachinesTest {
+
+    @Test
+    public void testGetMachineNames() throws Exception {
+        List<String> names = Machines.getMachineNames();
+        assertNotNull(names);
+        System.out.println("MACHINENAMES: " + names);
+    }
+
+    @Test
+    public void testGetMachinesInfo() throws Exception {
+        List<Machine> machines = Machines.getMachinesInfo();
+        assertNotNull(machines);
+        System.out.println("MACHINES: " + machines);
+    }
+
+    @Test @Category(DockerMachineTest.class)
+    public void testGetMachine() throws Exception {
+        Machine machine = Machines.getMachine("swarm-agent-00");
+        assertNotNull(machine);
+        assertEquals(machine.getName(), "swarm-agent-00");
+    }
+
+    @Test
+    public void testStopRunning() throws Exception {
+
+    }
+
+    @Test
+    public void testStopRunning1() throws Exception {
+
+    }
+
+    @Test
+    public void testStartNotRunning() throws Exception {
+
+    }
+
+    @Test
+    public void testStartNotRunning1() throws Exception {
+
+    }
+}
