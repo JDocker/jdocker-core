@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.djpaas.machine;
+package io.github.jdocker.machine;
 
-import io.github.djpaas.Executor;
-import io.github.djpaas.JSONMapper;
+import io.github.jdocker.Executor;
+import io.github.jdocker.JSONMapper;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -33,27 +33,27 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Simple Model of a machine managed by docker machine.
+ * Simple Model of a io.github.jdocker.machine managed by docker io.github.jdocker.machine.
  */
 public class Machine {
     private static final Logger LOG = Logger.getLogger(Machine.class.getName());
-    /** The machine's name. */
+    /** The io.github.jdocker.machine's name. */
     private String name;
     /** The current status. */
     private MachineStatus status = MachineStatus.NotExisting;
-    /** THe machine's url/location. */
+    /** THe io.github.jdocker.machine's url/location. */
     private URI url;
-    /** The machine's access driver. */
+    /** The io.github.jdocker.machine's access driver. */
     private String driver;
     /** THe number of CPUs. */
     private int cpus = 1;
-    /** The machine's memory. */
+    /** The io.github.jdocker.machine's memory. */
     private int memory;
-    /** The machine's disk size. */
+    /** The io.github.jdocker.machine's disk size. */
     private long diskSize;
-    /** The timestamp, when the machine overall state was refreshed. */
+    /** The timestamp, when the io.github.jdocker.machine overall state was refreshed. */
     private long lastUpdated = 0;
-    /** The machine environment variables. */
+    /** The io.github.jdocker.machine environment variables. */
     private Map<String,String> environment = new HashMap<String, String>();
 
     private int dockerPort;
@@ -82,12 +82,8 @@ public class Machine {
         return diskSize;
     }
 
-    public String create(String driver, Map<String,String> params){
-        return Executor.execute("docker-machine create --driver " + driver + " " + name);
-    }
-
     /**
-     * Access the machine's environment.
+     * Access the io.github.jdocker.machine's environment.
      * @return
      */
     public Map<String,String> getEnvironment(){
@@ -119,22 +115,22 @@ public class Machine {
             this.environment = environment;
 
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Error reading environment for machine: " + name, e);
+            LOG.log(Level.SEVERE, "Error reading environment for io.github.jdocker.machine: " + name, e);
         }
         return this.environment;
     }
 
     /**
-     * Inspect a machine's details.
+     * Inspect a io.github.jdocker.machine's details.
      * @return
      */
     public Map<String,String> inspect(){
         InputStream is = null;
         try {
-            is = Executor.executeToInputStream("docker-machine inspect " + name);
+            is = Executor.executeToInputStream("docker-io.github.jdocker.machine inspect " + name);
             return jsonMapper.readJsonData(is);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to inspect machine " + name, e);
+            throw new IllegalStateException("Failed to inspect io.github.jdocker.machine " + name, e);
         }
     }
 
@@ -151,7 +147,7 @@ public class Machine {
      "SwarmMaster": false,
      "SwarmHost": "tcp://0.0.0.0:3376",
      "SwarmDiscovery": "token://291c01c426135975e91d9f81b2a276df",
-     "StorePath": "/home/atsticks/.docker/machine",
+     "StorePath": "/home/atsticks/.docker/io.github.jdocker.machine",
      "CPU": 1,
      "Memory": 1024,
      "DiskSize": 20000,
@@ -195,17 +191,17 @@ public class Machine {
      "ArbitraryFlags": []
      },
      "AuthOptions": {
-     "CertDir": "/home/atsticks/.docker/machine/certs",
-     "CaCertPath": "/home/atsticks/.docker/machine/certs/ca.pem",
-     "CaPrivateKeyPath": "/home/atsticks/.docker/machine/certs/ca-key.pem",
+     "CertDir": "/home/atsticks/.docker/io.github.jdocker.machine/certs",
+     "CaCertPath": "/home/atsticks/.docker/io.github.jdocker.machine/certs/ca.pem",
+     "CaPrivateKeyPath": "/home/atsticks/.docker/io.github.jdocker.machine/certs/ca-key.pem",
      "CaCertRemotePath": "",
-     "ServerCertPath": "/home/atsticks/.docker/machine/machines/swarm-agent-00/server.pem",
-     "ServerKeyPath": "/home/atsticks/.docker/machine/machines/swarm-agent-00/server-key.pem",
-     "ClientKeyPath": "/home/atsticks/.docker/machine/certs/key.pem",
+     "ServerCertPath": "/home/atsticks/.docker/io.github.jdocker.machine/machines/swarm-agent-00/server.pem",
+     "ServerKeyPath": "/home/atsticks/.docker/io.github.jdocker.machine/machines/swarm-agent-00/server-key.pem",
+     "ClientKeyPath": "/home/atsticks/.docker/io.github.jdocker.machine/certs/key.pem",
      "ServerCertRemotePath": "",
      "ServerKeyRemotePath": "",
-     "ClientCertPath": "/home/atsticks/.docker/machine/certs/cert.pem",
-     "StorePath": "/home/atsticks/.docker/machine/machines/swarm-agent-00"
+     "ClientCertPath": "/home/atsticks/.docker/io.github.jdocker.machine/certs/cert.pem",
+     "StorePath": "/home/atsticks/.docker/io.github.jdocker.machine/machines/swarm-agent-00"
      }
      },
      "Name": "swarm-agent-00",
@@ -235,7 +231,7 @@ public class Machine {
     }
 
     /**
-     * Access the current machine status.
+     * Access the current io.github.jdocker.machine status.
      * @return
      */
     public MachineStatus getStatus(){
@@ -243,12 +239,12 @@ public class Machine {
     }
 
     /**
-     * Refresh the machine's status only by calling {@code docker-machine status <NAME>}.
-     * @return the machine's status
+     * Refresh the io.github.jdocker.machine's status only by calling {@code docker-io.github.jdocker.machine status <NAME>}.
+     * @return the io.github.jdocker.machine's status
      */
     public MachineStatus refreshStatus(){
         try{
-            String ret = Executor.execute("docker-machine status " + name);
+            String ret = Executor.execute("docker-io.github.jdocker.machine status " + name);
             if(("Host \""+name+"\" does not exist").equals(ret)){
                 this.status = MachineStatus.NotExisting;
             }
@@ -263,13 +259,13 @@ public class Machine {
     }
 
     /**
-     * Restarts a machine.
+     * Restarts a io.github.jdocker.machine.
      */
     public void restart(){
-        String result = Executor.execute("docker-machine restart " + name);
+        String result = Executor.execute("docker-io.github.jdocker.machine restart " + name);
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to restart machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to restart io.github.jdocker.machine " + name + " -> " + result);
         }
         this.status = MachineStatus.Running;
     }
@@ -278,59 +274,59 @@ public class Machine {
      * Regenerates the TLS certificates.
      */
     public void regenerateCerts(){
-        String result = Executor.execute("docker-machine regenerate " + name);
+        String result = Executor.execute("docker-io.github.jdocker.machine regenerate " + name);
     }
 
     /**
-     * Removes a machine.
+     * Removes a io.github.jdocker.machine.
      */
     public void remove(){
-        String result = Executor.execute("docker-machine remove " + name);
+        String result = Executor.execute("docker-io.github.jdocker.machine remove " + name);
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to kill machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to kill io.github.jdocker.machine " + name + " -> " + result);
         }
         this.status = MachineStatus.NotExisting;
     }
 
     /**
-     * Removes the machine completely.
+     * Removes the io.github.jdocker.machine completely.
      */
     public void kill(){
-        String result = Executor.execute("docker-machine kill " + name);
+        String result = Executor.execute("docker-io.github.jdocker.machine kill " + name);
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to kill machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to kill io.github.jdocker.machine " + name + " -> " + result);
         }
         this.status = MachineStatus.Stopped;
     }
 
     /**
-     * Starts the machine.
+     * Starts the io.github.jdocker.machine.
      */
     public void start(){
-        String result = Executor.execute("docker-machine start " + name);
+        String result = Executor.execute("docker-io.github.jdocker.machine start " + name);
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to start machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to start io.github.jdocker.machine " + name + " -> " + result);
         }
         this.status = MachineStatus.Running;
     }
 
     /**
-     * Stops the machine.
+     * Stops the io.github.jdocker.machine.
      */
     public void stop(){
-        String result = Executor.execute("docker-machine stop " + name);
+        String result = Executor.execute("docker-io.github.jdocker.machine stop " + name);
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to stop machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to stop io.github.jdocker.machine " + name + " -> " + result);
         }
         this.status = MachineStatus.Stopped;
     }
 
     /**
-     * Get the machine^s URL.
+     * Get the io.github.jdocker.machine^s URL.
      * @return
      */
     public URI getURL(){
@@ -341,30 +337,30 @@ public class Machine {
     }
 
     /**
-     * Refreshing the machine's URL by calling {@code docker-machine url <name>}.
+     * Refreshing the io.github.jdocker.machine's URL by calling {@code docker-io.github.jdocker.machine url <name>}.
      * @return
      */
     public URI refreshURL(){
         try {
-            return new URI(Executor.execute("docker-machine url " + name));
+            return new URI(Executor.execute("docker-io.github.jdocker.machine url " + name));
         } catch (URISyntaxException e) {
-            throw new IllegalStateException("Failed to evaluate machine URL for " + name, e);
+            throw new IllegalStateException("Failed to evaluate io.github.jdocker.machine URL for " + name, e);
         }
     }
 
     /**
-     * Upgrades the machine to the latest version of Docker.
+     * Upgrades the io.github.jdocker.machine to the latest version of Docker.
      */
     public void upgrade(){
-        String result = Executor.execute("docker-machine upgrade " + name);
+        String result = Executor.execute("docker-io.github.jdocker.machine upgrade " + name);
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to upgrade machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to upgrade io.github.jdocker.machine " + name + " -> " + result);
         }
     }
 
     /**
-     * Get the UTC timestamp of the last full update of this machine's state.
+     * Get the UTC timestamp of the last full update of this io.github.jdocker.machine's state.
      * @return the last update in millis.
      */
     public long getLastUpdate(){

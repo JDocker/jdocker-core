@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.djpaas;
+package io.github.jdocker;
 
 import java.io.BufferedReader;
 import java.io.IOException;

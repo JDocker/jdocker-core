@@ -16,19 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.djpaas;
+package io.github.jdocker;
 
 import org.apache.tamaya.ConfigException;
-import org.apache.tamaya.format.ConfigurationData;
-import org.apache.tamaya.format.ConfigurationDataBuilder;
-import org.apache.tamaya.format.ConfigurationFormat;
 
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.json.Json;
 import javax.json.JsonException;

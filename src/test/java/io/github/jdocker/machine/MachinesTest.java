@@ -1,4 +1,4 @@
-package io.github.djpaas.machine;
+package io.github.jdocker.machine;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

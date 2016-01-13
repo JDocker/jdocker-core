@@ -16,19 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.djpaas.machine;
+package io.github.jdocker.machine;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Facade class mapping the most important commands of {@code docker-machine}.
+ * Facade class mapping the most important commands of {@code docker-io.github.jdocker.machine}.
  */
 public class Machines {
 
@@ -39,11 +38,11 @@ public class Machines {
     private Machines(){}
 
     /**
-     * This calls maps to {@code docker-machine ls} listing all known machines for a given docker root.
-     * @return a list with all machine names, never null.
+     * This calls maps to {@code docker-io.github.jdocker.machine ls} listing all known machines for a given docker root.
+     * @return a list with all io.github.jdocker.machine names, never null.
      */
     public static List<String> getMachineNames(){
-        String namesToParse = io.github.djpaas.Executor.execute("docker-machine ls");
+        String namesToParse = io.github.jdocker.Executor.execute("docker-io.github.jdocker.machine ls");
         BufferedReader reader = new BufferedReader(new StringReader(namesToParse));
         List<String> result = new ArrayList<>();
         String line = null;
@@ -73,8 +72,8 @@ public class Machines {
 
     /**
      * Get a list of all machines currently known. This will perform multiple requests to evaluate the
-     * machine state for every machine name identified.
-     * @return a list of machine, refreshed.
+     * io.github.jdocker.machine state for every io.github.jdocker.machine name identified.
+     * @return a list of io.github.jdocker.machine, refreshed.
      */
     public static List<Machine> getMachinesInfo(){
         List<Machine> list = new ArrayList<Machine>();
@@ -89,9 +88,9 @@ public class Machines {
     }
 
     /**
-     * Access a machine by name.
-     * @param name the machine name , not null.
-     * @return the machine instance, or null.
+     * Access a io.github.jdocker.machine by name.
+     * @param name the io.github.jdocker.machine name , not null.
+     * @return the io.github.jdocker.machine instance, or null.
      */
     public static Machine getMachine(String name){
         Machine machine = MACHINE_CACHE.get(name);
@@ -101,6 +100,15 @@ public class Machines {
             MACHINE_CACHE.put(name, machine);
         }
         return machine;
+    }
+
+    /**
+     * Creates a new builder for a machine. Building the machine will also call docker-machine to create the instance.
+     * @param name the machine's name, not null.
+     * @return the new builder.
+     */
+    public MachineBuilder createMachine(String name){
+        return new MachineBuilder(name);
     }
 
     /**
@@ -117,7 +125,7 @@ public class Machines {
 
     /**
      * Stops all running machines where the given name expression matches.
-     * @param expression the regular expresseion matched against the machine name, not null.
+     * @param expression the regular expresseion matched against the io.github.jdocker.machine name, not null.
      */
     public static void stopRunning(String expression){
         List<Machine> machines = getMachinesInfo();
@@ -141,8 +149,8 @@ public class Machines {
     }
 
     /**
-     * Starts all non running machine where the given name expression matches.
-     * @param expression the regular expresseion matched against the machine name, not null.
+     * Starts all non running io.github.jdocker.machine where the given name expression matches.
+     * @param expression the regular expresseion matched against the io.github.jdocker.machine name, not null.
      */
     public static void startNotRunning(String expression){
         List<Machine> machines = getMachinesInfo();

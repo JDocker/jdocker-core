@@ -16,22 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.djpaas.machine;
+package io.github.jdocker.machine;
+
+import io.github.jdocker.DockerException;
 
 /**
- * The possible status of a machine.
+ * Created by atsticks on 12.01.16.
  */
-public enum MachineStatus {
-    /** The machine has a problem. */
-    Error,
-    /** The machine is not running. */
-    Stopped,
-    /** The machine is running and active. */
-    Running,
-    /** There was some unknown error that prevented the evaluation of the status, e.g. docker-machine is
-     * not installed.
-     */
-    Unknown,
-    /** The machine is not known to the current docker-machine setup.*/
-    NotExisting
+public class DockerMachineException extends DockerException{
+
+    public DockerMachineException(Throwable cause) {
+        super(cause);
+    }
+
+    public DockerMachineException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public DockerMachineException(String message) {
+        super(message);
+    }
 }
