@@ -1,11 +1,17 @@
 package io.github.jdocker;
 
+import io.github.jdocker.deployment.Region;
+import io.github.jdocker.machine.Machine;
+
 import java.util.*;
 
 /**
  * Request encapsulating {@code docker create ...}.
  */
 public class ContainerRequest {
+
+    private Region targetRegion;
+    private int scale;
 
 //    -a, --attach=[]                 Attach to STDIN, STDOUT or STDERR
     // -i, --interactive=false         Keep STDIN open even if not attached
@@ -114,7 +120,17 @@ public class ContainerRequest {
     /**
      * Instantiates a new Container request.
      */
-    public ContainerRequest(){}
+    public ContainerRequest(Region region){
+        this(region, 1);
+    }
+
+    /**
+     * Instantiates a new Container request.
+     */
+    public ContainerRequest(Region region, int scale){
+        this.targetRegion = Objects.requireNonNull(region);
+        this.scale = scale;
+    }
 
     /**
      * Gets custom host to ip mappings.
@@ -802,5 +818,10 @@ public class ContainerRequest {
     public ContainerRequest setWorkDir(String workDir) {
         this.workDir = workDir;
         return this;
+    }
+
+    public DockerContainer create(){
+        // TODO call docker create
+        return null;
     }
 }
