@@ -30,6 +30,7 @@ public class Region {
     private Map<String,String> properties = new HashMap<>();
     private boolean inheritsParentProperties = true;
     private Region parent;
+    private boolean cluster = false;
     private Map<String,Region> children = new TreeMap<>();
 
     Region(String name, Region parent){
@@ -38,6 +39,10 @@ public class Region {
         if(parent!=null){
             parent.children.put(this.name, this);
         }
+    }
+
+    public boolean isCluster(){
+        return cluster;
     }
 
     public Region getParent(){
@@ -59,8 +64,16 @@ public class Region {
         return inheritsParentProperties;
     }
 
+    public void setInheritsParentProperties(boolean inheritsParentProperties){
+        this.inheritsParentProperties = inheritsParentProperties;
+    }
+
     public boolean isDeploymentTarget(){
         return deploymentTarget;
+    }
+
+    public void setDeploymentTarget(boolean target){
+        this.deploymentTarget = target;
     }
 
     public Map<String,String> getProperties(){
@@ -71,6 +84,15 @@ public class Region {
         result.putAll(this.properties);
         return result;
     }
+
+    public void setProperty(String key, String value){
+        this.properties.put(key, value);
+    }
+
+    public void setCluster(boolean cluster){
+        this.cluster = cluster;
+    }
+
 
     /**
      * Returns the child region.
