@@ -11,8 +11,7 @@ import java.util.*;
  */
 public class DeploymentRequest {
 
-    private Region targetRegion;
-    private int scale;
+    private int scale = 0;
 
 //    -a, --attach=[]                 Attach to STDIN, STDOUT or STDERR
     // -i, --interactive=false         Keep STDIN open even if not attached
@@ -119,18 +118,12 @@ public class DeploymentRequest {
     private String workDir;
 
     /**
-     * Instantiates a new Container request.
+     * Gets the target scale.
+     *
+     * @return the target scale
      */
-    public DeploymentRequest(Region region){
-        this(region, 1);
-    }
-
-    /**
-     * Instantiates a new Container request.
-     */
-    public DeploymentRequest(Region region, int scale){
-        this.targetRegion = Objects.requireNonNull(region);
-        this.scale = scale;
+    public int getScale(){
+        return scale;
     }
 
     /**
@@ -818,6 +811,11 @@ public class DeploymentRequest {
 
     public DeploymentRequest setWorkDir(String workDir) {
         this.workDir = workDir;
+        return this;
+    }
+
+    public DeploymentRequest setScale(int scale) {
+        this.scale = scale;
         return this;
     }
 
