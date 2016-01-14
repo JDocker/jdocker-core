@@ -1,9 +1,6 @@
 package io.github.jdocker.deployment;
 
-import io.github.jdocker.ContainerRequest;
-
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by atsticks on 13.01.16.
@@ -51,7 +48,7 @@ public final class DeploymentPlanner {
         return ROOT_REGION;
     }
 
-    public static Collection<Region> getDeploymentRegions(Map<String,String> properties, ContainerRequest request){
+    public static Collection<Region> getDeploymentRegions(Map<String,String> properties, DeploymentRequest request){
         return Collections.emptyList();
     }
 
