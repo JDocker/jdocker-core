@@ -19,21 +19,11 @@
 package io.github.jdocker;
 
 /**
- * Created by atsticks on 12.01.16.
+ * The basic state of a system action.
  */
-public class DockerException extends RuntimeException{
-
-    private static final long serialVersionUID = 1L;
-
-    public DockerException(Throwable cause) {
-        super(cause);
-    }
-
-    public DockerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-
-    public DockerException(String message) {
-        super(message);
-    }
+public enum RequestState {
+    NEW,
+    SUCCESS,
+    RUNNING,
+    FAILED,
 }

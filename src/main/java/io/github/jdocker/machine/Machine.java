@@ -18,8 +18,8 @@
  */
 package io.github.jdocker.machine;
 
-import io.github.jdocker.Executor;
-import io.github.jdocker.JSONMapper;
+import io.github.jdocker.common.Executor;
+import io.github.jdocker.common.JSONMapper;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -91,7 +91,7 @@ public class Machine {
     }
 
     /**
-     * Reloads the environment from Docker.
+     * Reloads the environment from DockerNodeRegistry.
      */
     public Map<String,String> refreshEnvironment(){
         try {
@@ -349,7 +349,7 @@ public class Machine {
     }
 
     /**
-     * Upgrades the io.github.jdocker.machine to the latest version of Docker.
+     * Upgrades the io.github.jdocker.machine to the latest version of DockerNodeRegistry.
      */
     public void upgrade(){
         String result = Executor.execute("docker-io.github.jdocker.machine upgrade " + name);

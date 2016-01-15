@@ -14,10 +14,10 @@ public class MultiDeployment {
 Options:
   -f, --file FILE           Specify an alternate compose file (default: docker-compose.yml)
   -p, --project-name NAME   Specify an alternate project name (default: directory name)
-  --x-networking            (EXPERIMENTAL) Use new Docker networking functionality.
-                            Requires Docker 1.9 or later.
+  --x-networking            (EXPERIMENTAL) Use new DockerNodeRegistry networking functionality.
+                            Requires DockerNodeRegistry 1.9 or later.
   --x-network-driver DRIVER (EXPERIMENTAL) Specify a network driver (default: "bridge").
-                            Requires Docker 1.9 or later.
+                            Requires DockerNodeRegistry 1.9 or later.
   --verbose                 Show more output
   -v, --version             Print version and exit
 
@@ -39,7 +39,7 @@ Commands:
   unpause            Unpause services
   up                 Create and start containers
   migrate-to-labels  Recreate containers to add labels
-  version            Show the Docker-Compose version information
+  version            Show the DockerNodeRegistry-Compose version information
 
      */
 }

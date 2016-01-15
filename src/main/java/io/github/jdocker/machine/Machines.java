@@ -18,6 +18,8 @@
  */
 package io.github.jdocker.machine;
 
+import io.github.jdocker.common.Executor;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -42,7 +44,7 @@ public class Machines {
      * @return a list with all io.github.jdocker.machine names, never null.
      */
     public static List<String> getMachineNames(){
-        String namesToParse = io.github.jdocker.Executor.execute("docker-io.github.jdocker.machine ls");
+        String namesToParse = Executor.execute("docker-io.github.jdocker.machine ls");
         BufferedReader reader = new BufferedReader(new StringReader(namesToParse));
         List<String> result = new ArrayList<>();
         String line = null;
@@ -159,6 +161,11 @@ public class Machines {
                 machine.start();
             }
         }
+    }
+
+    public static List<Machine> getMachines(Region region) {
+        // TODO implement mapping of region to machines based on labels
+        return Collections.emptyList();
     }
 
 }

@@ -18,7 +18,7 @@
  */
 package io.github.jdocker.machine;
 
-import io.github.jdocker.Executor;
+import io.github.jdocker.common.Executor;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,7 +38,7 @@ public class MachineBuilder {
     private String name;
     /** Driver to create io.github.jdocker.machine with. Maps to {@code --driver, -d "none"}. */
     private String driver;
-    /** Custom Docker install URL to use for engine installation [$MACHINE_DOCKER_INSTALL_URL], default is
+    /** Custom DockerNodeRegistry install URL to use for engine installation [$MACHINE_DOCKER_INSTALL_URL], default is
      * {@code https://get.docker.com}. Maps to {@code --engine-install-url}.
      */
     private String installURL;
@@ -60,7 +60,7 @@ public class MachineBuilder {
     private Set<String> machineEnvironment = new HashSet<>();
     /** Configure Machine with Swarm, maps to {@code --swarm }. */
     private boolean configureMachineWithSwarm = false;
-    /** Define the swarm Docker image to be used, maps to {@code --swarm-image "swarm:latest"}. */
+    /** Define the swarm DockerNodeRegistry image to be used, maps to {@code --swarm-image "swarm:latest"}. */
     private String swarmImage = "swarm:latest";
     /** Configure io.github.jdocker.machine as swarm-master, maps to {@code  --swarm-master }s. */
     private boolean swarmMaster;

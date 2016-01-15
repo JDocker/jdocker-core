@@ -19,8 +19,12 @@
 package io.github.jdocker;
 
 /**
- * Created by atsticks on 14.01.16.
+ * Interface used to define a common structure for request floating through the system.
  */
-public enum RestartPolicy {
-    Always, Never
+public interface SystemRequest {
+
+    String getType();
+    String getDetails();
+    RequestState getState();
+
 }
