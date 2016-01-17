@@ -35,7 +35,10 @@ public class Machines {
 
     private static final Logger LOG = Logger.getLogger(Machines.class.getName());
 
-    private static final Map<String,Machine> MACHINE_CACHE = new ConcurrentHashMap<String, Machine>();
+    private static final Map<String,MachineConfig> MACHINE_CONFIGS = new ConcurrentHashMap<>();
+
+    private static final Map<String,Machine> MACHINES = new ConcurrentHashMap<>();
+
     /** Singleton. */
     private Machines(){}
 
@@ -44,7 +47,7 @@ public class Machines {
      * @return a list with all io.github.jdocker.machine names, never null.
      */
     public static List<String> getMachineNames(){
-        String namesToParse = Executor.execute("docker-io.github.jdocker.machine ls");
+        String namesToParse = Executor.execute("docker-machine ls");
         BufferedReader reader = new BufferedReader(new StringReader(namesToParse));
         List<String> result = new ArrayList<>();
         String line = null;
@@ -77,11 +80,11 @@ public class Machines {
      * io.github.jdocker.machine state for every io.github.jdocker.machine name identified.
      * @return a list of io.github.jdocker.machine, refreshed.
      */
-    public static List<Machine> getMachinesInfo(){
-        List<Machine> list = new ArrayList<Machine>();
+    public static List<Machine> getKnownMachines(){
+        List<Machine> list = new ArrayList<>();
         List<String> names = getMachineNames();
         for(String name: names){
-            Machine machine = getMachine(name);
+            Machine machine = lookupMachine(name);
             if(machine!=null){
                 list.add(machine);
             }
@@ -90,36 +93,44 @@ public class Machines {
     }
 
     /**
-     * Access a io.github.jdocker.machine by name.
+     * Access a machine by name.
      * @param name the io.github.jdocker.machine name , not null.
      * @return the io.github.jdocker.machine instance, or null.
      */
-    public static Machine getMachine(String name){
-        Machine machine = MACHINE_CACHE.get(name);
+    public static Machine lookupMachine(String name){
+        Machine machine = MACHINES.get(name);
         if(machine==null){
-            machine = new Machine(name);
+            MachineConfig config = MACHINE_CONFIGS.get(name);
+            if(config!=null) {
+                machine = new Machine(config);
+            }
+            else{
+                machine = new Machine(name);
+            }
+            MACHINES.put(name, machine);
+        }else {
             machine.refresh();
-            MACHINE_CACHE.put(name, machine);
         }
         return machine;
     }
 
     /**
-     * Creates a new builder for a machine. Building the machine will also call docker-machine to create the instance.
-     * @param name the machine's name, not null.
-     * @return the new builder.
+     * Access a machine configuration by name.
+     * @param name the machine name , not null.
+     * @return the MachineConfig instance, or null.
      */
-    public MachineBuilder createMachine(String name){
-        return new MachineBuilder(name);
+    public static MachineConfig getMachineConfig(String name){
+        return MACHINE_CONFIGS.get(name);
     }
+
 
     /**
      * Stops all machines known that currently are still running.
      */
     public static void stopRunning(){
-        List<Machine> machines = getMachinesInfo();
+        List<Machine> machines = getKnownMachines();
         for(Machine machine:machines){
-            if(machine.getStatus()==MachineStatus.Running){
+            if(machine.getMachineStatus()==MachineStatus.Running){
                 machine.stop();
             }
         }
@@ -130,9 +141,9 @@ public class Machines {
      * @param expression the regular expresseion matched against the io.github.jdocker.machine name, not null.
      */
     public static void stopRunning(String expression){
-        List<Machine> machines = getMachinesInfo();
+        List<Machine> machines = getKnownMachines();
         for(Machine machine:machines){
-            if(machine.getStatus()==MachineStatus.Running && machine.getName().matches(expression)){
+            if(machine.getMachineStatus()==MachineStatus.Running && machine.getName().matches(expression)){
                 machine.stop();
             }
         }
@@ -142,9 +153,9 @@ public class Machines {
      * Starts all not running machines.
      */
     public static void startNotRunning(){
-        List<Machine> machines = getMachinesInfo();
+        List<Machine> machines = getKnownMachines();
         for(Machine machine:machines){
-            if(machine.getStatus()!=MachineStatus.Running){
+            if(machine.getMachineStatus()!=MachineStatus.Running){
                 machine.start();
             }
         }
@@ -155,17 +166,14 @@ public class Machines {
      * @param expression the regular expresseion matched against the io.github.jdocker.machine name, not null.
      */
     public static void startNotRunning(String expression){
-        List<Machine> machines = getMachinesInfo();
+        List<Machine> machines = getKnownMachines();
         for(Machine machine:machines){
-            if(machine.getStatus()!=MachineStatus.Running && machine.getName().matches(expression)){
+            if(machine.getMachineStatus()!=MachineStatus.Running && machine.getName().matches(expression)){
                 machine.start();
             }
         }
     }
 
-    public static List<Machine> getMachines(Region region) {
-        // TODO implement mapping of region to machines based on labels
-        return Collections.emptyList();
-    }
+
 
 }

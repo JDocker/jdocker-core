@@ -1,6 +1,6 @@
 package io.github.jdocker.deployment;
 
-import io.github.jdocker.machine.Machine;
+import io.github.jdocker.machine.MachineConfig;
 
 import java.util.List;
 
@@ -9,5 +9,5 @@ import java.util.List;
  */
 public interface MachineSelectionPolicy {
 
-    List<Machine> selectMachines(List<Machine> machines, DeploymentRequest request);
+    List<MachineConfig> selectMachines(List<MachineConfig> machines, Deployment request);
 }

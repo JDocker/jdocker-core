@@ -18,15 +18,21 @@
  */
 package io.github.jdocker.deployment;
 
-import io.github.jdocker.DockerNode;
+import com.spotify.docker.client.messages.ContainerConfig;
+import com.spotify.docker.client.messages.ContainerInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.logging.Logger;
 
 /**
  * Class describing a deployment action.
  */
 public class Deployment {
-
+    private static final Logger LOG = Logger.getLogger(Deployment.class.getName());
     private int targetScale = 0;
     private Set<String> targets = new TreeSet<>();
     private ContainerConfig containerConfig;
@@ -41,12 +47,8 @@ public class Deployment {
         this.targets.addAll(targets);
     }
 
-    Collection<DockerNode>
-
-    public void addContainer(ContainerInfo container){
-        if(!this.containers.contains(container)) {
-            this.containers.add(container);
-        }
+    public void addContainer(ContainerInfo container)   {
+        this.containers.add(Objects.requireNonNull(container));
     }
 
     public void removeContainer(ContainerInfo container){
@@ -69,16 +71,6 @@ public class Deployment {
         return this.containers.size();
     }
 
-    public int getEffectiveScale(){
-        int count = 0;
-        for(ContainerInfo info:containers){
-            lf(info.isRunning()){
-                count++;
-            }
-        }
-        return count;
-    }
-
     public ContainerConfig getContainerConfig() {
         return containerConfig;
     }
@@ -90,20 +82,20 @@ public class Deployment {
 
         Deployment that = (Deployment) o;
 
-        return deloymentRequest.getContainerConfig().equals(that.deloymentRequest.getContainerConfig());
+        return getContainerConfig().equals(that.getContainerConfig());
 
     }
 
     @Override
     public int hashCode() {
-        return deloymentRequest.hashCode();
+        return containerConfig.hashCode();
     }
 
     @Override
     public String toString() {
         return "Deployment{" +
                 "containers=" + containers +
-                ", deloymentRequest=" + deloymentRequest +
+                ", containerConfig=" + containerConfig +
                 '}';
     }
 }

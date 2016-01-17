@@ -63,7 +63,6 @@ class JSONVisitor {
                         default:
                             throw new ConfigException("Internal failure while processing JSON document.");
                     }
-                    
                     targetStore.put(key, value);
                 } else if (current.getValue() instanceof JsonObject) {
                     String key = stack.peek().getNSPrefix() + current.getKey();
@@ -73,8 +72,23 @@ class JSONVisitor {
                     JsonArray array = (JsonArray)current.getValue();
                     for(int i=0;i< array.size();i++){
                         String key = stack.peek().getNSPrefix() + current.getKey() + "["+i+"]";
-                        JsonObject node = (JsonObject) array.get(i);
-                        stack.push(new VisitingContext(node, key));
+                        JsonValue node = array.get(i);
+                        if(node instanceof JsonObject){
+                            stack.push(new VisitingContext((JsonObject)node, key));
+                        }
+                        else{
+                            String value;
+                            switch(node.getValueType()) {
+                                case NULL: value = null; break;
+                                case FALSE: value = Boolean.FALSE.toString(); break;
+                                case TRUE: value = Boolean.TRUE.toString(); break;
+                                case NUMBER: value = node.toString(); break;
+                                case STRING: value = ((JsonString) node).getString(); break;
+                                default:
+                                    throw new ConfigException("Internal failure while processing JSON document.");
+                            }
+                            targetStore.put(key, value);
+                        }
                     }
                 } else {
                     throw new ConfigException("Internal failure while processing JSON document.");

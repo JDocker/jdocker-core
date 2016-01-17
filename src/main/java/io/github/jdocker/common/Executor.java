@@ -28,11 +28,11 @@ import java.io.InputStreamReader;
  */
 public class Executor {
 
-    public static String execute(String command) {
+    public static String execute(String... commands) {
         StringBuffer output = new StringBuffer();
         Process p;
         try {
-            p = Runtime.getRuntime().exec(command);
+            p = Runtime.getRuntime().exec(commands);
             p.waitFor();
             BufferedReader reader =
                     new BufferedReader(new InputStreamReader(p.getInputStream()));

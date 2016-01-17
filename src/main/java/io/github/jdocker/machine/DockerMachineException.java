@@ -18,12 +18,11 @@
  */
 package io.github.jdocker.machine;
 
-import io.github.jdocker.DockerException;
 
 /**
  * Created by atsticks on 12.01.16.
  */
-public class DockerMachineException extends DockerException{
+public class DockerMachineException extends RuntimeException{
 
     public DockerMachineException(Throwable cause) {
         super(cause);

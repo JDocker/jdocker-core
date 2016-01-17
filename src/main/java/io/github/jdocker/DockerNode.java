@@ -35,10 +35,19 @@ public class DockerNode {
     private Map<String,String> labels = new HashMap<>();
 
 
-    public DockerNode(String name, DockerClient client, Map<String,String> labels){
+    public DockerNode(String name, DockerClient client, String... labels){
         this.name = Objects.requireNonNull(name);
         this.client = Objects.requireNonNull(client);
-        this.labels.putAll(labels);
+        for(String lbl:labels){
+            int index = lbl.indexOf('=');
+            if(index>0){
+                this.labels.put(lbl.substring(0,index).trim(),
+                        lbl.substring(index+1));
+            }
+            else{
+                this.labels.put(lbl, "");
+            }
+        }
     }
 
     public String getName(){

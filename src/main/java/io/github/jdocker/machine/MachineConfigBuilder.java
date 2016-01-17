@@ -18,8 +18,6 @@
  */
 package io.github.jdocker.machine;
 
-import io.github.jdocker.common.Executor;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -31,11 +29,11 @@ import java.util.logging.Logger;
 /**
  * Request that encapsulates the possible parameters to be passed to {@code docker-maschine create <name>}.
  */
-public class MachineBuilder {
+public class MachineConfigBuilder {
     /** Log used. */
-    private static final Logger LOG = Logger.getLogger(MachineBuilder.class.getName());
+    private static final Logger LOG = Logger.getLogger(MachineConfigBuilder.class.getName());
     /** The machine's name. */
-    private String name;
+    String name;
     /** Driver to create io.github.jdocker.machine with. Maps to {@code --driver, -d "none"}. */
     private String driver;
     /** Custom DockerNodeRegistry install URL to use for engine installation [$MACHINE_DOCKER_INSTALL_URL], default is
@@ -58,14 +56,14 @@ public class MachineBuilder {
     /** Define environment variables for the engine. Maps to
      * {@code --engine-env [--engine-env option --engine-env option]}. */
     private Set<String> machineEnvironment = new HashSet<>();
-    /** Configure Machine with Swarm, maps to {@code --swarm }. */
+    /** Configure MachineConfig with Swarm, maps to {@code --swarm }. */
     private boolean configureMachineWithSwarm = false;
     /** Define the swarm DockerNodeRegistry image to be used, maps to {@code --swarm-image "swarm:latest"}. */
     private String swarmImage = "swarm:latest";
     /** Configure io.github.jdocker.machine as swarm-master, maps to {@code  --swarm-master }s. */
     private boolean swarmMaster;
     /** Discovery service to use with Swarm, maps to {@code --swarm-discovery}. */
-    private String swarmDiscovery;
+    private String swarmDiscoveryToken;
     /** Configure the default scheduling strategy for swarm, amps to {@code --swarm-strategy "spread" }. */
     private String swarmStrategy;
     /** Define swarm options for swarm. Maps to
@@ -77,7 +75,7 @@ public class MachineBuilder {
     private URI swarmAdvertizeURI;
 
 
-    MachineBuilder(String name) {
+    MachineConfigBuilder(String name) {
         this.name = Objects.requireNonNull(name);
     }
 
@@ -125,8 +123,8 @@ public class MachineBuilder {
         return swarmMaster;
     }
 
-    public String getSwarmDiscovery() {
-        return swarmDiscovery;
+    public String getSwarmDiscoveryToken() {
+        return swarmDiscoveryToken;
     }
 
     public String getSwarmStrategy() {
@@ -145,86 +143,94 @@ public class MachineBuilder {
         return swarmAdvertizeURI;
     }
 
-    public MachineBuilder setDriver(String driver) {
+    public MachineConfigBuilder setDriver(String driver) {
         this.driver = driver;
         return this;
     }
 
-    public MachineBuilder setInstallURL(String installURL) {
+    public MachineConfigBuilder setInstallURL(String installURL) {
         this.installURL = installURL;
         return this;
     }
 
-    public MachineBuilder addEngineOption(String engineOption) {
+    public MachineConfigBuilder addEngineOption(String engineOption) {
         this.engineOptions.add(engineOption);
         return this;
     }
 
-    public MachineBuilder addInsecureRegistry(String insecureRegistry) {
+    public MachineConfigBuilder addInsecureRegistry(String insecureRegistry) {
         this.insecureRegistries.add(insecureRegistry);
         return this;
     }
 
-    public MachineBuilder addLabel(String label) {
+    public MachineConfigBuilder addLabel(String label) {
         this.labels.add(label);
         return this;
     }
 
-    public MachineBuilder setStorageDriver(String storageDriver) {
+    public MachineConfigBuilder setStorageDriver(String storageDriver) {
         this.storageDriver = storageDriver;
         return this;
     }
 
-    public MachineBuilder addMachineEnvProperty(String machineEnvProperty) {
+    public MachineConfigBuilder addMachineEnvProperty(String machineEnvProperty) {
         this.machineEnvironment.add(machineEnvProperty);
         return this;
     }
 
-    public MachineBuilder setConfigureMachineWithSwarm(boolean configureMachineWithSwarm) {
-        this.configureMachineWithSwarm = configureMachineWithSwarm;
+    public MachineConfigBuilder setSwarmHost(String swarmDiscoveryToken) {
+        this.configureMachineWithSwarm = true;
+        this.swarmDiscoveryToken = Objects.requireNonNull(swarmDiscoveryToken);
         return this;
     }
 
-    public MachineBuilder setSwarmImage(String swarmImage) {
+    public MachineConfigBuilder setSwarmMaster(String swarmDiscoveryToken) {
+        this.configureMachineWithSwarm = true;
+        this.swarmDiscoveryToken = Objects.requireNonNull(swarmDiscoveryToken);
+        this.swarmMaster = true;
+        return this;
+    }
+
+    public MachineConfigBuilder setSwarmImage(String swarmImage) {
         this.swarmImage = swarmImage;
         return this;
     }
 
-    public MachineBuilder setSwarmMaster(boolean swarmMaster) {
+    public MachineConfigBuilder setSwarmMaster(boolean swarmMaster) {
         this.swarmMaster = swarmMaster;
         return this;
     }
 
-    public MachineBuilder setSwarmDiscovery(String swarmDiscovery) {
-        this.swarmDiscovery = swarmDiscovery;
+    public MachineConfigBuilder setSwarmDiscoveryToken(String swarmDiscoveryToken) {
+        this.swarmDiscoveryToken = swarmDiscoveryToken;
         return this;
     }
 
-    public MachineBuilder setSwarmStrategy(String swarmStrategy) {
+    public MachineConfigBuilder setSwarmStrategy(String swarmStrategy) {
         this.swarmStrategy = swarmStrategy;
         return this;
     }
 
-    public MachineBuilder setSwarmEnvironment(Set<String> swarmEnvironment) {
+    public MachineConfigBuilder setSwarmEnvironment(Set<String> swarmEnvironment) {
         this.swarmEnvironment = swarmEnvironment;
         return this;
     }
 
-    public MachineBuilder setSwarmHostURI(URI swarmHostURI) {
+    public MachineConfigBuilder setSwarmHostURI(URI swarmHostURI) {
         this.swarmHostURI = swarmHostURI;
         return this;
     }
 
-    public MachineBuilder setSwarmHostURI(String swarmHostURI) throws URISyntaxException {
+    public MachineConfigBuilder setSwarmHostURI(String swarmHostURI) throws URISyntaxException {
         return setSwarmHostURI(new URI(swarmHostURI));
     }
 
-    public MachineBuilder setSwarmAdvertizeURI(URI swarmAdvertizeURI) {
+    public MachineConfigBuilder setSwarmAdvertizeURI(URI swarmAdvertizeURI) {
         this.swarmAdvertizeURI = swarmAdvertizeURI;
         return this;
     }
 
-    public MachineBuilder setSwarmAdvertizeURI(String swarmAdvertizeURI) throws URISyntaxException {
+    public MachineConfigBuilder setSwarmAdvertizeURI(String swarmAdvertizeURI) throws URISyntaxException {
         return setSwarmAdvertizeURI(new URI(swarmAdvertizeURI));
     }
 
@@ -233,62 +239,7 @@ public class MachineBuilder {
      * @return a new machine instance. Please check the machine's status to evaluate if the creation command was
      * successful {@code status=MachineStatus.Running}.
      */
-    public Machine build(){
-        StringBuilder createCommand = new StringBuilder("docker-machine create ");
-        if(driver!=null){
-            createCommand.append("--driver ").append(driver).append(' ');
-        }
-        if(installURL!=null){
-            createCommand.append("--engine-install-url ").append(installURL).append(' ');
-        }
-        for(String opt:engineOptions){
-            createCommand.append("--engine-opt ").append(opt).append(' ');
-        }
-        for(String reg:insecureRegistries){
-            createCommand.append("--engine-insecure-registry ").append(reg).append(' ');
-        }
-        for(String lbl:labels){
-            createCommand.append("--engine-label ").append(lbl).append(' ');
-        }
-        if(storageDriver!=null){
-            createCommand.append("--engine-storage-driver ").append(storageDriver).append(' ');
-        }
-        if(driver!=null){
-            createCommand.append("--driver ").append(driver).append(' ');
-        }
-        if(driver!=null){
-            createCommand.append("--driver ").append(driver).append(' ');
-        }
-        for(String env:machineEnvironment){
-            createCommand.append("--engine-env ").append(env).append(' ');
-        }
-        if(configureMachineWithSwarm){
-            createCommand.append("--swarm-image ");
-            if(swarmImage!=null){
-                createCommand.append("--driver ").append(swarmImage).append(' ');
-            }
-            if(swarmMaster){
-                createCommand.append("--swarm-master ");
-            }
-            if(swarmDiscovery!=null){
-                createCommand.append("--swarm-discovery ").append(swarmDiscovery).append(' ');
-            }
-            if(swarmStrategy!=null){
-                createCommand.append("--swarm-strategy ").append(swarmStrategy).append(' ');
-            }
-            for(String env:swarmEnvironment){
-                createCommand.append("--swarm-opt ").append(env).append(' ');
-            }
-            if(swarmHostURI!=null){
-                createCommand.append("--swarm-host ").append(swarmHostURI).append(' ');
-            }
-            if(swarmAdvertizeURI!=null){
-                createCommand.append("--swarm-addr ").append(swarmAdvertizeURI).append(' ');
-            }
-        }
-        String command = createCommand.toString();
-        LOG.info("Creating new machine with: " + command);
-        LOG.info("MACHINE CREATION RESULT: " + Executor.execute(command));
-        return Machines.getMachine(name);
+    public MachineConfig build(){
+        return new MachineConfig(this);
     }
 }

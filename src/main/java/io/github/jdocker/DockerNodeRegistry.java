@@ -19,12 +19,17 @@
 package io.github.jdocker;
 
 import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerCertificateException;
+import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.messages.AuthConfig;
 import org.apache.tamaya.Configuration;
 import org.apache.tamaya.ConfigurationProvider;
 
+import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -42,7 +47,7 @@ public class DockerNodeRegistry {
         String masterDockers = props.get("jdocker.docker.masters");
         if(masterDockers!=null){
             for(String masterKey:masterDockers.split(",")){
-                Map<String,String> labels = readLabelForDockerContainer(masterKey, config);
+                String[] labels = readLabelForDockerContainer(masterKey, config);
                 DockerClient client = initDockerClient(masterKey, config);
                 DOCKERS.put(masterKey, new DockerNode(masterKey, client, labels));
                 LOG.info("Registered docker instance: " + masterKey);
@@ -52,14 +57,64 @@ public class DockerNodeRegistry {
 
     private static DockerClient initDockerClient(String dockerName, Configuration config) {
         DefaultDockerClient.Builder builder = DefaultDockerClient.builder();
-        String apiVersion = config.get("jdocker.docker."+dockerName+".apiVersion");
-        if(apiVersion!=null){
-            builder.apiVersion(apiVersion);
+        String val = config.get("jdocker.docker."+dockerName+".apiVersion");
+        if(val!=null){
+            builder.apiVersion(val);
         }
+        val = config.get("jdocker.docker."+dockerName+".connectionPoolSize");
+        if(val!=null){
+            builder.connectionPoolSize(Integer.parseInt(val));
+        }
+        AuthConfig.Builder authConfBuilder = AuthConfig.builder();
+        boolean useAuth = false;
+        val = config.get("jdocker.docker."+dockerName+".auth.email");
+        if(val!=null){authConfBuilder.email(val);useAuth=true;}
+        val = config.get("jdocker.docker."+dockerName+".auth.userName");
+        if(val!=null){authConfBuilder.username(val);useAuth=true;}
+        val = config.get("jdocker.docker."+dockerName+".auth.serverAddress");
+        if(val!=null){authConfBuilder.serverAddress(val);useAuth=true;}
+        val = config.get("jdocker.docker."+dockerName+".auth.password");
+        if(val!=null){authConfBuilder.password(val);useAuth=true;}
+        if(useAuth){
+            builder.authConfig(authConfBuilder.build());
+        }
+        val = config.get("jdocker.docker."+dockerName+".connectTimeoutMillis");
+        if(val!=null){
+            builder.connectTimeoutMillis(Long.parseLong(val));
+        }
+        val = config.get("jdocker.docker."+dockerName+".readTimeoutMillis");
+        if(val!=null){
+            builder.readTimeoutMillis(Long.parseLong(val));
+        }
+        val = config.get("jdocker.docker."+dockerName+".uri");
+        if(val!=null){
+            builder.uri(val);
+        }
+        DockerCertificates.Builder certBuilder = DockerCertificates.builder();
+        boolean useCerts = false;
+        val = config.get("jdocker.docker."+dockerName+".caCertPath");
+        if(val!=null){certBuilder.caCertPath(new File(val).toPath());useCerts=true;}
+        val = config.get("jdocker.docker."+dockerName+".clientCertPath");
+        if(val!=null){certBuilder.clientCertPath(new File(val).toPath());useCerts=true;}
+        val = config.get("jdocker.docker."+dockerName+".clientKeyPath");
+        if(val!=null){certBuilder.clientKeyPath(new File(val).toPath());useCerts=true;}
+        val = config.get("jdocker.docker."+dockerName+".dockerCertPath");
+        if(val!=null){certBuilder.dockerCertPath(new File(val).toPath());useCerts=true;}
+        if(useCerts) {
+            try {
+                com.google.common.base.Optional<DockerCertificates> optCerts = certBuilder.build();
+                if(optCerts.isPresent()) {
+                    builder.dockerCertificates(optCerts.get());
+                }
+            } catch (DockerCertificateException e) {
+                LOG.log(Level.SEVERE, "Failed to initialize docker certificates for DockerClient.", e);
+            }
+        }
+        return builder.build();
     }
 
-    private static Map<String, String> readLabelForDockerContainer(String dockerName, Configuration config) {
-        Map<String,String> labels = new HashMap<>();
+    private static String[] readLabelForDockerContainer(String dockerName, Configuration config) {
+        List<String> labels = new ArrayList<>();
         String labelsProp = config.get("jdocker.docker."+dockerName+".labels");
         if(labelsProp!=null){
             StringTokenizer tokenizer = new StringTokenizer(labelsProp, ",\n\r", false);
@@ -75,15 +130,15 @@ public class DockerNodeRegistry {
                 }
                 String key = token.substring(0,index).trim();
                 String value = token.substring(index+1);
-                labels.put(key, value);
+                labels.add(key+'='+value);
             }
         }
-        return labels;
+        return labels.toArray(new String[labels.size()]);
     }
 
     private DockerNodeRegistry(){}
 
-    public static DockerNode addDocker(String name, DockerClient client, Map<String,String> labels){
+    public static DockerNode addDocker(String name, DockerClient client, String... labels){
         DockerNode dockerNode = new DockerNode(name, client, labels);
         DockerNodeRegistry.DOCKERS.put(name, dockerNode);
         return dockerNode;
