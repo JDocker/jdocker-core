@@ -16,24 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.deployment;
+package io.github.jdocker.deployment.internal;
 
-import io.github.jdocker.DockerNode;
-
-import java.util.Collection;
+import com.spotify.docker.client.messages.ContainerInfo;
+import io.github.jdocker.ContainerNode;
 
 /**
- * Class that defines which docker nodes can be used for this deployment.
+ * Created by atsticks on 19.01.16.
  */
-public interface DockerNodeElector {
+public class DefaultContainer implements ContainerNode {
 
-    /**
-     * Evaluates the possible deployment targets. This does a selection from all known nodes in the system that
-     * match the deployment's configuration. It is the responsibility of the {@link DockerNodeSelector} to
-     * effectively define the effective deployment targets called for deployment.
-     * @param deployment the deployment, not null
-     * @return the collection of eligible nodes, never null.
-     */
-    Collection<DockerNode> evaluateTargetNodes(Deployment.ContainerRequest request);
+    private ContainerInfo container;
+    private String dockerNode;
 
+    public DefaultContainer(ContainerInfo containerInfo, String dockerNode) {
+        this.container = containerInfo;
+        this.dockerNode = dockerNode;
+    }
+
+    @Override
+    public ContainerInfo getInstance() {
+        return container;
+    }
+
+    @Override
+    public String dockerNode() {
+        return dockerNode;
+    }
 }

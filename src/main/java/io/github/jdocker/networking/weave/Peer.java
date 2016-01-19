@@ -16,24 +16,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.deployment;
+package io.github.jdocker.networking.weave;
 
-import io.github.jdocker.DockerNode;
-
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Class that defines which docker nodes can be used for this deployment.
+ * Created by atsticks on 17.01.16.
  */
-public interface DockerNodeElector {
+public class Peer{
 
-    /**
-     * Evaluates the possible deployment targets. This does a selection from all known nodes in the system that
-     * match the deployment's configuration. It is the responsibility of the {@link DockerNodeSelector} to
-     * effectively define the effective deployment targets called for deployment.
-     * @param deployment the deployment, not null
-     * @return the collection of eligible nodes, never null.
-     */
-    Collection<DockerNode> evaluateTargetNodes(Deployment.ContainerRequest request);
+    private String name;
+    private String nickName;
+    private long id;
+    private long shortId;
+    private int version;
+    private Set<String> connections = new HashSet<>();
 
+
+    public String getName() {
+        return name;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public long getShortId() {
+        return shortId;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public Set<String> getConnections() {
+        return connections;
+    }
 }

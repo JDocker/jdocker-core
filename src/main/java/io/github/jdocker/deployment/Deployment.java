@@ -19,13 +19,10 @@
 package io.github.jdocker.deployment;
 
 import com.spotify.docker.client.messages.ContainerConfig;
-import com.spotify.docker.client.messages.ContainerInfo;
+import io.github.jdocker.ContainerManager;
+import io.github.jdocker.ContainerNode;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -33,46 +30,34 @@ import java.util.logging.Logger;
  */
 public class Deployment {
     private static final Logger LOG = Logger.getLogger(Deployment.class.getName());
-    private int targetScale = 0;
-    private Set<String> targets = new TreeSet<>();
-    private ContainerConfig containerConfig;
-    private List<ContainerInfo> containers = new ArrayList<>();
+
+    private String id = UUID.randomUUID().toString();
+    private List<ContainerRequest> requests = new ArrayList<>();
 
     /**
      * Instantiates a new Container request.
      */
-    public Deployment(ContainerConfig containerConfig, int targetScale, Set<String> targets){
-        this.containerConfig = Objects.requireNonNull(containerConfig);
-        this.targetScale = targetScale;
-        this.targets.addAll(targets);
+    public Deployment(Collection<ContainerRequest> requests){
+        this.requests.addAll(Objects.requireNonNull(requests));
+        for(ContainerRequest req:requests){
+            req.getContainerConfig().labels().put("deployment", id);
+        }
     }
 
-    public void addContainer(ContainerInfo container)   {
-        this.containers.add(Objects.requireNonNull(container));
+    Deployment(DeploymentBuilder deploymentBuilder) {
+        this.requests.addAll(Objects.requireNonNull(deploymentBuilder.requests));
     }
 
-    public void removeContainer(ContainerInfo container){
-        this.containers.remove(container);
+    public String getId(){
+        return id;
     }
 
-    public List<ContainerInfo> getContainers() {
-        return new ArrayList<>(containers);
+    public List<ContainerRequest> getRequests() {
+        return Collections.unmodifiableList(requests);
     }
 
-    public Set<String> getTargets(){
-        return targets;
-    }
-
-    public int getTargetScale(){
-        return targetScale;
-    }
-
-    public int getPlannedScale(){
-        return this.containers.size();
-    }
-
-    public ContainerConfig getContainerConfig() {
-        return containerConfig;
+    public Collection<ContainerNode> getInstances() {
+        return ContainerManager.getContainersWithLabels("deployment="+id);
     }
 
     @Override
@@ -82,20 +67,70 @@ public class Deployment {
 
         Deployment that = (Deployment) o;
 
-        return getContainerConfig().equals(that.getContainerConfig());
+        return id.equals(that.id);
 
     }
 
     @Override
     public int hashCode() {
-        return containerConfig.hashCode();
+        return id.hashCode();
     }
 
     @Override
     public String toString() {
         return "Deployment{" +
-                "containers=" + containers +
-                ", containerConfig=" + containerConfig +
+                "id="+id+
+                ", containerRequests=" + requests +
                 '}';
     }
+
+    public ContainerRequest createRequest(ContainerConfig config, int scale){
+        ContainerRequest req = new ContainerRequest(config, scale);
+        req.scale = scale;
+        req.containerConfig = Objects.requireNonNull(config);
+        if(scale<0){
+            throw new IllegalArgumentException("Scale must be >= 0.");
+        }
+        return req;
+    }
+
+    public final class ContainerRequest{
+        private int scale;
+        private ContainerConfig containerConfig;
+
+        ContainerRequest(ContainerConfig config){
+            this(config, 1);
+        }
+
+        ContainerRequest(ContainerConfig config, int scale){
+            this.scale = scale;
+            this.containerConfig = Objects.requireNonNull(config);
+            if(scale<0){
+                throw new IllegalArgumentException("Scale must be >= 0.");
+            }
+        }
+
+        public Deployment getDeployment(){
+            return Deployment.this;
+        }
+
+
+
+        public int getScale() {
+            return scale;
+        }
+
+        public ContainerConfig getContainerConfig() {
+            return containerConfig;
+        }
+
+        @Override
+        public String toString() {
+            return "ContainerRequest{" +
+                    "scale=" + scale +
+                    ", containerConfig=" + containerConfig +
+                    '}';
+        }
+    }
+
 }

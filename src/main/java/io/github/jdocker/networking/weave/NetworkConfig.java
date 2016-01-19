@@ -16,24 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.deployment;
-
-import io.github.jdocker.DockerNode;
-
-import java.util.Collection;
+package io.github.jdocker.networking.weave;
 
 /**
- * Class that defines which docker nodes can be used for this deployment.
+ * Weave networking config.
  */
-public interface DockerNodeElector {
+public class NetworkConfig {
 
-    /**
-     * Evaluates the possible deployment targets. This does a selection from all known nodes in the system that
-     * match the deployment's configuration. It is the responsibility of the {@link DockerNodeSelector} to
-     * effectively define the effective deployment targets called for deployment.
-     * @param deployment the deployment, not null
-     * @return the collection of eligible nodes, never null.
-     */
-    Collection<DockerNode> evaluateTargetNodes(Deployment.ContainerRequest request);
+    private String weaveVersion;
+    private RouterConfig routerConfig;
+    private IPAMConfig ipamConfig;
+    private DNSConfig dnsCOnfig;
 
+    public String getWeaveVersion() {
+        return weaveVersion;
+    }
+
+    public RouterConfig getRouterConfig() {
+        return routerConfig;
+    }
+
+    public IPAMConfig getIpamConfig() {
+        return ipamConfig;
+    }
+
+    public DNSConfig getDnsCOnfig() {
+        return dnsCOnfig;
+    }
 }

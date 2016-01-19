@@ -21,14 +21,14 @@ public class MachinesTest {
 
     @Test
     public void testGetMachinesInfo() throws Exception {
-        List<Machine> machines = Machines.getMachinesInfo();
+        List<MachineConfig> machines = Machines.getMachinesInfo();
         assertNotNull(machines);
         System.out.println("MACHINES: " + machines);
     }
 
     @Test @Category(DockerMachineTest.class)
     public void testGetMachine() throws Exception {
-        Machine machine = Machines.getMachine("swarm-agent-00");
+        MachineConfig machine = Machines.getMachine("swarm-agent-00");
         assertNotNull(machine);
         assertEquals(machine.getName(), "swarm-agent-00");
     }
