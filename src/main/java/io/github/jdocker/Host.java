@@ -16,26 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.spi;
+package io.github.jdocker;
 
-import com.spotify.docker.client.DockerClient;
-import io.github.jdocker.DockerNode;
-
-import java.util.Collection;
-import java.util.Set;
+import java.net.URI;
+import java.util.Map;
 
 /**
- * Created by atsticks on 19.01.16.
+ * Interface representing an unpooled host.
  */
-public interface DockerNodeRegistrySpi {
+public interface Host{
 
-    DockerNode addDocker(String name, DockerClient client, String... labels);
+    String getName();
 
-    DockerNode getDocker(String name);
+    /**
+     * Get the docker-machine^s URL.
+     * @return
+     */
+    URI getURL();
 
-    Collection<DockerNode> getDockers();
+    /**
+     * Pings the machine.
+     */
+    void ping();
 
-    Set<String> getDockerNames();
+    /**
+     * Properties, e.g. for accessing the machine with ssh or similar.
+     * @return the hsot properties, not null.
+     */
+    Map<String,String> getProperties();
 
-    DockerNode removeDocker(String name);
 }

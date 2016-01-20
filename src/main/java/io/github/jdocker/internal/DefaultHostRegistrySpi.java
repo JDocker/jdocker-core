@@ -18,13 +18,17 @@
  */
 package io.github.jdocker.internal;
 
+import com.google.common.base.Predicate;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerCertificateException;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.messages.AuthConfig;
-import io.github.jdocker.DockerNode;
-import io.github.jdocker.spi.DockerNodeRegistrySpi;
+import io.github.jdocker.DockerMachine;
+import io.github.jdocker.Host;
+import io.github.jdocker.MachineConfig;
+import io.github.jdocker.MachineConfigBuilder;
+import io.github.jdocker.spi.HostRegistrySpi;
 import org.apache.tamaya.Configuration;
 import org.apache.tamaya.ConfigurationProvider;
 
@@ -37,12 +41,13 @@ import java.util.logging.Logger;
 /**
  * Registry managing the docker registries known to this master orchestration node.
  */
-public class DefaultDockerNodeRegistrySpi implements DockerNodeRegistrySpi{
+public class DefaultHostRegistrySpi implements HostRegistrySpi {
 
-    private static final Logger LOG = Logger.getLogger(DefaultDockerNodeRegistrySpi.class.getName());
-    private static final Map<String, DockerNode> DOCKERS = new ConcurrentHashMap<>();
+    private static final Logger LOG = Logger.getLogger(DefaultHostRegistrySpi.class.getName());
+    private static final Map<String, DockerMachine> DOCKERS = new ConcurrentHashMap<>();
+    private static final Map<String, Host> UNPOOLED = new ConcurrentHashMap<>();
 
-    public DefaultDockerNodeRegistrySpi(){
+    public DefaultHostRegistrySpi(){
         // read master config from Tamaya
         Configuration config = ConfigurationProvider.getConfiguration();
         Map<String,String> props = config.getProperties();
@@ -51,10 +56,28 @@ public class DefaultDockerNodeRegistrySpi implements DockerNodeRegistrySpi{
             for(String masterKey:masterDockers.split(",")){
                 String[] labels = readLabelForDockerContainer(masterKey, config);
                 DockerClient client = initDockerClient(masterKey, config);
-                DOCKERS.put(masterKey, new DockerNode(masterKey, client, labels));
+                MachineConfig mc = MachineConfig.builder(masterKey).build();
+                DOCKERS.put(masterKey, new DefaultDockerMachine(mc));
                 LOG.info("Registered docker instance: " + masterKey);
             }
         }
+        String unpooledHosts = props.get("jdocker.docker.unpooled");
+        if(unpooledHosts!=null){
+            for(String masterKey:unpooledHosts.split(",")){
+
+            }
+        }
+    }
+
+    private DockerMachine initMachine(String name, Configuration config) {
+        MachineConfig mConfig = readMachineConfig(config);
+        DefaultDockerMachine m = new DefaultDockerMachine(mConfig);
+        return m;
+    }
+
+    private MachineConfig readMachineConfig(Configuration config) {
+        // TODO define and implement config format.
+        return null;
     }
 
     private DockerClient initDockerClient(String dockerName, Configuration config) {
@@ -139,30 +162,77 @@ public class DefaultDockerNodeRegistrySpi implements DockerNodeRegistrySpi{
     }
 
     @Override
-    public DockerNode addDocker(String name, DockerClient client, String... labels){
-        DockerNode dockerNode = new DockerNode(name, client, labels);
-        DefaultDockerNodeRegistrySpi.DOCKERS.put(name, dockerNode);
-        return dockerNode;
+    public DockerMachine addDocker(String name, DockerClient client, String... labels){
+        MachineConfigBuilder builder = new MachineConfigBuilder(name);
+        DefaultDockerMachine dockerHost = new DefaultDockerMachine(builder.build());
+        DefaultHostRegistrySpi.DOCKERS.put(name, dockerHost);
+        return dockerHost;
     }
 
     @Override
-    public DockerNode getDocker(String name){
-        return DefaultDockerNodeRegistrySpi.DOCKERS.remove(name);
+    public DockerMachine getDocker(String name){
+        return DefaultHostRegistrySpi.DOCKERS.remove(name);
     }
 
     @Override
-    public Collection<DockerNode> getDockers(){
-        return DefaultDockerNodeRegistrySpi.DOCKERS.values();
+    public Collection<DockerMachine> getDockerMachines(Predicate<DockerMachine> predicate) {
+        List<DockerMachine> found = new ArrayList<>();
+        for(DockerMachine host:this.getDockerMachines()){
+            if(predicate.apply(host)){
+                found.add(host);
+            }
+        }
+        return found;
     }
 
     @Override
-    public Set<String> getDockerNames(){
-        return DefaultDockerNodeRegistrySpi.DOCKERS.keySet();
+    public Collection<DockerMachine> getDockerMachines(){
+        return DefaultHostRegistrySpi.DOCKERS.values();
     }
 
     @Override
-    public DockerNode removeDocker(String name){
-        return DefaultDockerNodeRegistrySpi.DOCKERS.remove(name);
+    public Set<String> getDockerHostNames(){
+        return DefaultHostRegistrySpi.DOCKERS.keySet();
+    }
+
+    @Override
+    public DockerMachine removeDockerHost(String name){
+        return DefaultHostRegistrySpi.DOCKERS.remove(name);
+    }
+
+    @Override
+    public void removeDockerHosts(Predicate<DockerMachine> predicate) {
+        List<DockerMachine> found = new ArrayList<>();
+        for(DockerMachine host:this.getDockerMachines()){
+            if(predicate.apply(host)){
+                DefaultHostRegistrySpi.DOCKERS.remove(host.getName());
+            }
+        }
+    }
+
+    @Override
+    public void addHost(Host machine) {
+
+    }
+
+    @Override
+    public Collection<Host> getHosts() {
+        return null;
+    }
+
+    @Override
+    public Host getHost(String address) {
+        return null;
+    }
+
+    @Override
+    public int getPooledHostCount() {
+        return 0;
+    }
+
+    @Override
+    public int getUnpooledHostCount() {
+        return 0;
     }
 
 }

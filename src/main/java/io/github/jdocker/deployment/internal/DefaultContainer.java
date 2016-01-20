@@ -19,12 +19,12 @@
 package io.github.jdocker.deployment.internal;
 
 import com.spotify.docker.client.messages.ContainerInfo;
-import io.github.jdocker.ContainerNode;
+import io.github.jdocker.ContainerHost;
 
 /**
  * Created by atsticks on 19.01.16.
  */
-public class DefaultContainer implements ContainerNode {
+public class DefaultContainer implements ContainerHost {
 
     private ContainerInfo container;
     private String dockerNode;

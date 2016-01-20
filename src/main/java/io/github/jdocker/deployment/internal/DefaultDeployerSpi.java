@@ -18,10 +18,12 @@
  */
 package io.github.jdocker.deployment.internal;
 
+import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
 import io.github.jdocker.ContainerManager;
-import io.github.jdocker.ContainerNode;
-import io.github.jdocker.DockerNode;
+import io.github.jdocker.ContainerHost;
+import io.github.jdocker.DockerMachine;
+import io.github.jdocker.deployment.ContainerRequest;
 import io.github.jdocker.deployment.Deployment;
 import io.github.jdocker.deployment.DockerNodeElector;
 import io.github.jdocker.deployment.DockerNodeSelector;
@@ -40,7 +42,7 @@ public final class DefaultDeployerSpi implements DeployerSpi{
     private static final Logger LOG = Logger.getLogger(DefaultDeployerSpi.class.getName());
 
     @Override
-    public Collection<DockerNode> getEligibleNodes(Deployment.ContainerRequest request) {
+    public Collection<DockerMachine> getEligibleNodes(ContainerRequest request) {
         return ServiceContextManager.getServiceContext().getService(DockerNodeElector.class).evaluateTargetNodes(
                 request
         );
@@ -49,12 +51,12 @@ public final class DefaultDeployerSpi implements DeployerSpi{
     @Override
     public List<ContainerCreation> deploy(Deployment deployment) {
         List<ContainerCreation> nodesDeployed = new ArrayList<>();
-        for(Deployment.ContainerRequest req: deployment.getRequests()) {
-            Collection<DockerNode> nodes = getEligibleNodes(req);
+        for(ContainerRequest req: deployment.getRequests()) {
+            Collection<DockerMachine> nodes = getEligibleNodes(req);
             nodes = ServiceContextManager.getServiceContext().getService(DockerNodeSelector.class).selectTargetNodes(
                     nodes, req);
-            for (DockerNode node : nodes) {
-                nodesDeployed.add(deployDirect(node, req));
+            for (DockerMachine node : nodes) {
+                nodesDeployed.add(deployDirect(node, req.getContainerConfig()));
             }
         }
         return nodesDeployed;
@@ -62,12 +64,12 @@ public final class DefaultDeployerSpi implements DeployerSpi{
 
     @Override
     public void ensureScale(Deployment deployment) {
-        Collection<ContainerNode> deployedNodes = deployment.getInstances();
-        Map<Deployment.ContainerRequest, List<ContainerNode>> detailedDeployments = new HashMap<>();
-        for(ContainerNode node: deployedNodes) {
-            for (Deployment.ContainerRequest req : deployment.getRequests()) {
+        Collection<ContainerHost> deployedNodes = deployment.getInstances();
+        Map<ContainerRequest, List<ContainerHost>> detailedDeployments = new HashMap<>();
+        for(ContainerHost node: deployedNodes) {
+            for (ContainerRequest req : deployment.getRequests()) {
                 if (req.getContainerConfig().image().equals(node.getInstance().image())) {
-                    List<ContainerNode> list = detailedDeployments.get(req);
+                    List<ContainerHost> list = detailedDeployments.get(req);
                     if(list==null){
                         list = new ArrayList<>();
                         detailedDeployments.put(req, list);
@@ -76,13 +78,13 @@ public final class DefaultDeployerSpi implements DeployerSpi{
                 }
             }
         }
-        for (Deployment.ContainerRequest req : deployment.getRequests()) {
+        for (ContainerRequest req : deployment.getRequests()) {
             int diff = req.getScale() - detailedDeployments.get(req).size();
             if(diff==0){
                 continue;
             }
             else if(diff<0){
-                for(ContainerNode container:detailedDeployments.get(req)){
+                for(ContainerHost container:detailedDeployments.get(req)){
                     ContainerManager.removeContainer(container);
                     diff++;
                     if(diff>=0){
@@ -91,10 +93,10 @@ public final class DefaultDeployerSpi implements DeployerSpi{
                 }
             }
             else if(diff>0) {
-                Collection<DockerNode> nodes = getEligibleNodes(req);
+                Collection<DockerMachine> nodes = getEligibleNodes(req);
                 nodes = ServiceContextManager.getServiceContext().getService(DockerNodeSelector.class).selectTargetNodes(
                         nodes, req);
-                for (DockerNode node : nodes) {
+                for (DockerMachine node : nodes) {
                     List<ContainerCreation> c = deployDirect(node, deployment);
                     diff--;
                     if(diff<=0){
@@ -106,21 +108,21 @@ public final class DefaultDeployerSpi implements DeployerSpi{
     }
 
     @Override
-    public ContainerCreation deployDirect(DockerNode node, Deployment.ContainerRequest request) {
+    public ContainerCreation deployDirect(DockerMachine node, ContainerConfig config){
         try {
-            return node.getClient().createContainer(request.getContainerConfig());
+            return node.createDockerClient().createContainer(config);
         } catch (Exception e) {
-            LOG.log(Level.WARNING, "Container deployment failed for " + request.getContainerConfig().image() +
+            LOG.log(Level.WARNING, "Container deployment failed for " + config.image() +
                     " on node " + node.getName());
             return null;
         }
     }
 
     @Override
-    public List<ContainerCreation> deployDirect(DockerNode node, Deployment deployment) {
+    public List<ContainerCreation> deployDirect(DockerMachine node, Deployment deployment) {
         List<ContainerCreation> result = new ArrayList<>();
-        for(Deployment.ContainerRequest req: deployment.getRequests()) {
-            result.add(deployDirect(node, req));
+        for(ContainerRequest req: deployment.getRequests()) {
+            result.add(deployDirect(node, req.getContainerConfig()));
         }
         return result;
     }

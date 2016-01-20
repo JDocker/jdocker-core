@@ -19,12 +19,11 @@
 package io.github.jdocker.networking.weave;
 
 import io.github.jdocker.common.Executor;
-import io.github.jdocker.machine.Machine;
-import io.github.jdocker.machine.MachineConfig;
+import io.github.jdocker.DockerMachine;
+import io.github.jdocker.MachineConfig;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -161,14 +160,14 @@ public class WeaveNetworking {
     }
 
     // --init-peer-count 3
-    public static String clusterMachines(Machine... machines){
+    public static String clusterMachines(DockerMachine... machines){
         return clusterMachines(Arrays.asList(machines));
     }
 
-    public static String clusterMachines(Collection<Machine> machines) {
-        Machine first = null;
+    public static String clusterMachines(Collection<DockerMachine> machines) {
+        DockerMachine first = null;
         StringBuilder b = new StringBuilder();
-        for(Machine m:machines) {
+        for(DockerMachine m:machines) {
             if(first==null) {
                 b.append(Executor.execute("eval \"$(docker-machine "+m.getName()+")\"",
                         "weave launch --init-peer-count " + machines.size()));
@@ -184,7 +183,7 @@ public class WeaveNetworking {
     }
 
 
-    public static String expose(Machine machine, String... networks){
+    public static String expose(DockerMachine machine, String... networks){
         StringBuilder b = new StringBuilder("weave expose ");
         for(String net:networks){
             net = net.trim();

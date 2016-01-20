@@ -16,20 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.machine;
+package io.github.jdocker;
 
-import io.github.jdocker.common.Executor;
 import io.github.jdocker.spi.MachinesSpi;
-import io.github.jdocker.spi.ServiceContext;
 import io.github.jdocker.spi.ServiceContextManager;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Facade class mapping the most important commands of {@code docker-io.github.jdocker.machine}.
@@ -54,7 +46,7 @@ public class Machines {
      * io.github.jdocker.machine state for every io.github.jdocker.machine name identified.
      * @return a list of io.github.jdocker.machine, refreshed.
      */
-    public static List<Machine> getKnownMachines(){
+    public static List<DockerMachine> getKnownMachines(){
         return SPI.getKnownMachines();
     }
 
@@ -63,7 +55,7 @@ public class Machines {
      * @param name the io.github.jdocker.machine name , not null.
      * @return the io.github.jdocker.machine instance, or null.
      */
-    public static Machine lookupMachine(String name){
+    public static DockerMachine lookupMachine(String name){
         return SPI.lookupMachine(name);
     }
 
@@ -112,7 +104,7 @@ public class Machines {
      * @param machineConfig the machine config, not null.
      * @return the new machine, check its status if all is OK.
      */
-    public static Machine createMachine(MachineConfig machineConfig) {
+    public static DockerMachine createMachine(MachineConfig machineConfig) {
         return SPI.createMachine(machineConfig);
     }
 }

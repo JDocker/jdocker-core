@@ -20,7 +20,7 @@ package io.github.jdocker.deployment;
 
 import com.spotify.docker.client.messages.ContainerConfig;
 import io.github.jdocker.ContainerManager;
-import io.github.jdocker.ContainerNode;
+import io.github.jdocker.ContainerHost;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -56,7 +56,7 @@ public class Deployment {
         return Collections.unmodifiableList(requests);
     }
 
-    public Collection<ContainerNode> getInstances() {
+    public Collection<ContainerHost> getInstances() {
         return ContainerManager.getContainersWithLabels("deployment="+id);
     }
 
@@ -84,53 +84,14 @@ public class Deployment {
                 '}';
     }
 
+    /**
+     * Create container request and add it to this instance.
+     * @param config the container configuration
+     * @param scale the scale.
+     * @return the request.
+     */
     public ContainerRequest createRequest(ContainerConfig config, int scale){
-        ContainerRequest req = new ContainerRequest(config, scale);
-        req.scale = scale;
-        req.containerConfig = Objects.requireNonNull(config);
-        if(scale<0){
-            throw new IllegalArgumentException("Scale must be >= 0.");
-        }
-        return req;
-    }
-
-    public final class ContainerRequest{
-        private int scale;
-        private ContainerConfig containerConfig;
-
-        ContainerRequest(ContainerConfig config){
-            this(config, 1);
-        }
-
-        ContainerRequest(ContainerConfig config, int scale){
-            this.scale = scale;
-            this.containerConfig = Objects.requireNonNull(config);
-            if(scale<0){
-                throw new IllegalArgumentException("Scale must be >= 0.");
-            }
-        }
-
-        public Deployment getDeployment(){
-            return Deployment.this;
-        }
-
-
-
-        public int getScale() {
-            return scale;
-        }
-
-        public ContainerConfig getContainerConfig() {
-            return containerConfig;
-        }
-
-        @Override
-        public String toString() {
-            return "ContainerRequest{" +
-                    "scale=" + scale +
-                    ", containerConfig=" + containerConfig +
-                    '}';
-        }
+        return new ContainerRequest(this, config, scale);
     }
 
 }

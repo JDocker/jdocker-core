@@ -20,7 +20,7 @@ package io.github.jdocker.networking.calico;
 
 import com.spotify.docker.client.messages.ContainerInfo;
 import io.github.jdocker.common.Executor;
-import io.github.jdocker.machine.Machine;
+import io.github.jdocker.DockerMachine;
 import io.github.jdocker.networking.NetworkingStatus;
 import io.github.jdocker.networking.SecurityProfile;
 import io.github.jdocker.spi.NetworkingSpi;
@@ -52,19 +52,19 @@ public class CalicoNetworkingSpi implements NetworkingSpi{
     }
 
     @Override
-    public void installNetworking(Machine machine){
+    public void installNetworking(DockerMachine machine){
         String result = Executor.executeRemote(machine, "calicoctl node --libnetwork");
         // TODO check for errors
     }
 
     @Override
-    public void stopNetworking(Machine machine){
+    public void stopNetworking(DockerMachine machine){
         String result =   Executor.executeRemote(machine, "sudo calicoctl node stop");
         // TODO check for errors
     }
 
     @Override
-    public void startNetworking(Machine machine){
+    public void startNetworking(DockerMachine machine){
         String result =   Executor.executeRemote(machine, "sudo calicoctl node start");
         // TODO check for errors
     }

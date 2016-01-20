@@ -17,10 +17,10 @@ public final class ContainerManager {
 
     private ContainerManager(){}
 
-    public static Collection<ContainerNode> getContainers(String containerName)   {
-        List<ContainerNode> result = new ArrayList<>();
-        for(DockerNode docker: DockerNodeRegistry.getDockers()) {
-            DockerClient client = docker.getClient();
+    public static Collection<ContainerHost> getContainers(String containerName)   {
+        List<ContainerHost> result = new ArrayList<>();
+        for(DockerMachine docker: HostRegistry.getDockers()) {
+            DockerClient client = docker.createDockerClient();
             List<com.spotify.docker.client.messages.Container> containers = null;
             try {
                 containers = client.listContainers(
@@ -43,10 +43,10 @@ public final class ContainerManager {
         return result;
     }
 
-    public static Collection<ContainerNode> getExitedContainers()   {
-        List<ContainerNode> result = new ArrayList<>();
-        for(DockerNode docker: DockerNodeRegistry.getDockers()) {
-            DockerClient client = docker.getClient();
+    public static Collection<ContainerHost> getExitedContainers()   {
+        List<ContainerHost> result = new ArrayList<>();
+        for(DockerMachine docker: HostRegistry.getDockers()) {
+            DockerClient client = docker.createDockerClient();
             List<com.spotify.docker.client.messages.Container> containers = null;
             try {
                 containers = client.listContainers(
@@ -69,10 +69,10 @@ public final class ContainerManager {
         return result;
     }
 
-    public static Collection<ContainerNode> getContainersWithLabels(String... labels)   {
-        List<ContainerNode> result = new ArrayList<>();
-        for(DockerNode docker: DockerNodeRegistry.getDockers()) {
-            DockerClient client = docker.getClient();
+    public static Collection<ContainerHost> getContainersWithLabels(String... labels)   {
+        List<ContainerHost> result = new ArrayList<>();
+        for(DockerMachine docker: HostRegistry.getDockers()) {
+            DockerClient client = docker.createDockerClient();
             List<com.spotify.docker.client.messages.Container> containers = null;
             try {
                 containers = client.listContainers(createLabelParams(labels));
@@ -108,26 +108,26 @@ public final class ContainerManager {
         return result;
     }
 
-    public static void removeContainer(ContainerNode container) {
+    public static void removeContainer(ContainerHost container) {
         try {
-            DockerNodeRegistry.getDocker(container.dockerNode()).getClient().removeContainer(container.getInstance().id());
+            HostRegistry.getDocker(container.dockerNode()).createDockerClient().removeContainer(container.getInstance().id());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void stopContainer(ContainerNode container, int secondsBeforeKilling) {
+    public static void stopContainer(ContainerHost container, int secondsBeforeKilling) {
         try {
-            DockerNodeRegistry.getDocker(container.dockerNode()).getClient().stopContainer(
+            HostRegistry.getDocker(container.dockerNode()).createDockerClient().stopContainer(
                     container.getInstance().id(), secondsBeforeKilling);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void startContainer(ContainerNode container) {
+    public static void startContainer(ContainerHost container) {
         try {
-            DockerNodeRegistry.getDocker(container.dockerNode()).getClient().startContainer(
+            HostRegistry.getDocker(container.dockerNode()).createDockerClient().startContainer(
                     container.getInstance().id());
         } catch (Exception e) {
             e.printStackTrace();

@@ -3,9 +3,9 @@ package io.github.jdocker;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.PortBinding;
-import io.github.jdocker.machine.Machine;
-import io.github.jdocker.machine.MachineConfig;
-import io.github.jdocker.machine.Machines;
+import io.github.jdocker.deployment.Deployer;
+import io.github.jdocker.deployment.Deployment;
+import io.github.jdocker.deployment.DeploymentBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,23 +21,26 @@ public class test {
                     .addLabel("test")
                     .setDriver("virtualbox")
                     .build();
-            Machine machine = Machines.createMachine(machineConfig);
+            DockerMachine machine = Machines.createMachine(machineConfig);
 
-            // Configure port bindings...
-            List<PortBinding> containerPorts = new ArrayList<PortBinding>();
-            containerPorts.add(PortBinding.of("0.0.0.0", "443"));
-            portBindings.put("443", randomPort);
+//            // Configure port bindings...
+//            List<PortBinding> containerPorts = new ArrayList<PortBinding>();
+//            containerPorts.add(PortBinding.of("0.0.0.0", "443"));
+//            portBindings.put("443", randomPort);
 
             // Add container as member to a network
             final HostConfig hostConfig = HostConfig.builder() // --net
-                    .networkMode("container:net1").build();
-
+                    .networkMode("container:test-dev")
+                    .build();
             // Create container with exposed ports
-            final ContainerConfig containerConfig = ContainerConfig.builder()
-            ContainerConfig container = ContainerConfig.builder()
-                    .hostname()
+            ContainerConfig.Builder cfgBuilder = ContainerConfig.builder()
+                    .hostConfig(hostConfig).image("busybox");
+                cfgBuilder.labels()
+                    .put("ttl", String.valueOf(System.currentTimeMillis()+3600000L));
+            Deployment deployment = new DeploymentBuilder().addRequest(
+                    cfgBuilder.build()).build();
             try {
-                Machines.getMachine()registerMachineAsDockerNode("test=true", "auto-remove=true");
+                Deployer.deploy(deployment);
             } catch (Exception e) {
                 e.printStackTrace();
             }

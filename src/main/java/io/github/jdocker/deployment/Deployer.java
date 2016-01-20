@@ -19,16 +19,10 @@
 package io.github.jdocker.deployment;
 
 import com.spotify.docker.client.messages.ContainerCreation;
-import io.github.jdocker.ContainerManager;
-import io.github.jdocker.ContainerNode;
-import io.github.jdocker.DockerNode;
-import io.github.jdocker.DockerNodeRegistry;
-import io.github.jdocker.deployment.internal.DefaultContainer;
 import io.github.jdocker.spi.DeployerSpi;
 import io.github.jdocker.spi.ServiceContextManager;
 
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -42,7 +36,7 @@ public final class Deployer {
 
     private Deployer(){}
 
-    public static Collection<DockerNode> getEligibleNodes(Deployment deployment) {
+    public static Collection<DockerHost> getEligibleNodes(Deployment deployment) {
         return SPI.getEligibleNodes(deployment);
     }
 
@@ -54,7 +48,7 @@ public final class Deployer {
         return SPI.ensureScale(deployment);
     }
 
-    public static ContainerCreation deployDirect(DockerNode node, Deployment deployment) {
+    public static ContainerCreation deployDirect(DockerHost node, Deployment deployment) {
         return SPI.deployDirect(node, deployment);
     }
 

@@ -18,7 +18,7 @@
  */
 package io.github.jdocker.common;
 
-import io.github.jdocker.machine.Machine;
+import io.github.jdocker.DockerMachine;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,7 +57,7 @@ public class Executor {
         return p.getInputStream();
     }
 
-    public static String executeRemote(Machine machine, String s) {
+    public static String executeRemote(DockerMachine machine, String s) {
         // open ssh session on machine...
         throw new UnsupportedOperationException("Not implemented yet.");
     }

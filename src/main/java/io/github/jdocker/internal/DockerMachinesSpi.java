@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.machine.internal;
+package io.github.jdocker.internal;
 
 import io.github.jdocker.common.Executor;
-import io.github.jdocker.machine.Machine;
-import io.github.jdocker.machine.MachineConfig;
-import io.github.jdocker.machine.MachineStatus;
+import io.github.jdocker.DockerMachine;
+import io.github.jdocker.MachineConfig;
+import io.github.jdocker.MachineStatus;
 import io.github.jdocker.spi.MachinesSpi;
 
 import java.io.BufferedReader;
@@ -43,7 +43,7 @@ public class DockerMachinesSpi implements MachinesSpi {
 
     private static final Map<String,MachineConfig> MACHINE_CONFIGS = new ConcurrentHashMap<>();
 
-    private static final Map<String,Machine> MACHINES = new ConcurrentHashMap<>();
+    private static final Map<String,DockerMachine> MACHINES = new ConcurrentHashMap<>();
 
     /** Singleton. */
     private DockerMachinesSpi(){}
@@ -88,11 +88,11 @@ public class DockerMachinesSpi implements MachinesSpi {
      * @return a list of io.github.jdocker.machine, refreshed.
      */
     @Override
-    public List<Machine> getKnownMachines(){
-        List<Machine> list = new ArrayList<>();
+    public List<DockerMachine> getKnownMachines(){
+        List<DockerMachine> list = new ArrayList<>();
         List<String> names = getMachineNames();
         for(String name: names){
-            Machine machine = lookupMachine(name);
+            DockerMachine machine = lookupMachine(name);
             if(machine!=null){
                 list.add(machine);
             }
@@ -106,15 +106,15 @@ public class DockerMachinesSpi implements MachinesSpi {
      * @return the io.github.jdocker.machine instance, or null.
      */
     @Override
-    public Machine lookupMachine(String name){
-        Machine machine = MACHINES.get(name);
+    public DockerMachine lookupMachine(String name){
+        DockerMachine machine = MACHINES.get(name);
         if(machine==null){
             MachineConfig config = MACHINE_CONFIGS.get(name);
             if(config!=null) {
-                machine = new DockerMachine(config);
+                machine = new DefaultDockerMachine(config);
             }
             else{
-                machine = new DockerMachine(name);
+                machine = new DefaultDockerMachine(name);
             }
             MACHINES.put(name, machine);
         }else {
@@ -139,8 +139,8 @@ public class DockerMachinesSpi implements MachinesSpi {
      */
     @Override
     public void stopRunning(){
-        List<Machine> machines = getKnownMachines();
-        for(Machine machine:machines){
+        List<DockerMachine> machines = getKnownMachines();
+        for(DockerMachine machine:machines){
             if(machine.getMachineStatus()==MachineStatus.Running){
                 machine.stop();
             }
@@ -153,8 +153,8 @@ public class DockerMachinesSpi implements MachinesSpi {
      */
     @Override
     public void stopRunning(String expression){
-        List<Machine> machines = getKnownMachines();
-        for(Machine machine:machines){
+        List<DockerMachine> machines = getKnownMachines();
+        for(DockerMachine machine:machines){
             if(machine.getMachineStatus()==MachineStatus.Running && machine.getName().matches(expression)){
                 machine.stop();
             }
@@ -166,8 +166,8 @@ public class DockerMachinesSpi implements MachinesSpi {
      */
     @Override
     public void startNotRunning(){
-        List<Machine> machines = getKnownMachines();
-        for(Machine machine:machines){
+        List<DockerMachine> machines = getKnownMachines();
+        for(DockerMachine machine:machines){
             if(machine.getMachineStatus()!=MachineStatus.Running){
                 machine.start();
             }
@@ -180,8 +180,8 @@ public class DockerMachinesSpi implements MachinesSpi {
      */
     @Override
     public void startNotRunning(String expression){
-        List<Machine> machines = getKnownMachines();
-        for(Machine machine:machines){
+        List<DockerMachine> machines = getKnownMachines();
+        for(DockerMachine machine:machines){
             if(machine.getMachineStatus()!=MachineStatus.Running && machine.getName().matches(expression)){
                 machine.start();
             }
@@ -189,8 +189,8 @@ public class DockerMachinesSpi implements MachinesSpi {
     }
 
     @Override
-    public Machine createMachine(MachineConfig machineConfig) {
-        Machine machine = MACHINES.get(machineConfig.getName());
+    public DockerMachine createMachine(MachineConfig machineConfig) {
+        DockerMachine machine = MACHINES.get(machineConfig.getName());
         if(machine!=null){
             LOG.warning("Cannot create machine: " +machineConfig.getName() + ": already exists!");
             return machine;
@@ -199,7 +199,7 @@ public class DockerMachinesSpi implements MachinesSpi {
         if(config!=null && config!=machineConfig){
             throw new IllegalStateException("Config already present for " + machineConfig.getName());
         }
-        machine = new DockerMachine(machineConfig);
+        machine = new DefaultDockerMachine(machineConfig);
         MACHINE_CONFIGS.put(machineConfig.getName(), machineConfig);
         MACHINES.put(machine.getName(), machine);
         machine.createMachine();

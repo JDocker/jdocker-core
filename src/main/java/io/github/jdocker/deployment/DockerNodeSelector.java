@@ -18,10 +18,9 @@
  */
 package io.github.jdocker.deployment;
 
-import io.github.jdocker.DockerNode;
+import io.github.jdocker.DockerMachine;
 
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Instances implementing this interface are responsible for defining the effective nodes that will be called for
@@ -35,9 +34,9 @@ public interface DockerNodeSelector {
      *                     load, or other runtime characteristics.
      * @param request the concrete deployment subrequest.
      * @return the set of nodes to be called for deployment, never null. If the number of nodes does not match the
-     * requested {@link io.github.jdocker.deployment.Deployment.ContainerRequest#getScale()} a warning must be logged.
+     * requested {@link ContainerRequest#getScale()} a warning must be logged.
      */
-    Collection<DockerNode> selectTargetNodes(Collection<DockerNode> electedNodes,
-                                             Deployment.ContainerRequest request);
+    Collection<DockerMachine> selectTargetNodes(Collection<DockerMachine> electedNodes,
+                                                ContainerRequest request);
     
 }

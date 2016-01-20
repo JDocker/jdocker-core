@@ -16,19 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.machine.internal;
+package io.github.jdocker.internal;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerClient;
-import io.github.jdocker.DockerNode;
-import io.github.jdocker.DockerNodeRegistry;
+import io.github.jdocker.DockerMachine;
+import io.github.jdocker.HostRegistry;
 import io.github.jdocker.common.Executor;
 import io.github.jdocker.common.JSONMapper;
-import io.github.jdocker.machine.DockerMachineException;
-import io.github.jdocker.machine.Machine;
-import io.github.jdocker.machine.MachineConfig;
-import io.github.jdocker.machine.MachineStatus;
+import io.github.jdocker.DockerMachineException;
+import io.github.jdocker.MachineConfig;
+import io.github.jdocker.MachineStatus;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,22 +35,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Created by atsticks on 17.01.16.
  */
-public final class DockerMachine implements Machine {
+public final class DefaultDockerMachine implements DockerMachine {
 
-    private static final Logger LOG = Logger.getLogger(DockerMachine.class.getName());
+    private static final Logger LOG = Logger.getLogger(DefaultDockerMachine.class.getName());
 
-    /** The docker machine's name. */
-    private String name;
+    private DockerClient client;
     /** The current status. */
     private MachineStatus status = MachineStatus.NotExisting;
     /** The docker-machine's url/location. */
@@ -66,7 +61,7 @@ public final class DockerMachine implements Machine {
     private MachineConfig configuration;
 
     public String getName() {
-        return name;
+        return configuration.getName();
     }
 
     /** The timestamp, when the docker-machine overall state was refreshed. */
@@ -75,17 +70,10 @@ public final class DockerMachine implements Machine {
     /** The mapper for reading the inspection JSON. */
     private JSONMapper jsonMapper = new JSONMapper();
 
-    public DockerMachine(String name){
-        this.name = Objects.requireNonNull(name);
-        refresh();
-    }
-
-    public DockerMachine(MachineConfig config){
-        this.name = Objects.requireNonNull(config).getName();
+    public DefaultDockerMachine(MachineConfig config){
         this.configuration = config;
         refresh();
     }
-
 
     public int getCPUs(){
         return cpus;
@@ -104,6 +92,7 @@ public final class DockerMachine implements Machine {
     public MachineStatus getMachineStatus(){ return status; }
 
     public MachineConfig getConfiguration(){return configuration; }
+
 
     /**
      * <pre>
@@ -206,7 +195,7 @@ public final class DockerMachine implements Machine {
         Set<String> environment = new TreeSet<String>();
         try {
             BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(Executor.executeToInputStream("docker env " + name)));
+                    new BufferedReader(new InputStreamReader(Executor.executeToInputStream("docker env " + getName())));
             String line = "";
             while ((line = reader.readLine())!= null) {
                 if(line.startsWith("#")){
@@ -217,7 +206,7 @@ public final class DockerMachine implements Machine {
                 environment.add(line.trim());
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Error reading environment for docker-machine: " + name, e);
+            LOG.log(Level.SEVERE, "Error reading environment for docker-machine: " + getName(), e);
         }
         return environment;
     }
@@ -229,10 +218,10 @@ public final class DockerMachine implements Machine {
     public Map<String,String> inspect(){
         InputStream is = null;
         try {
-            is = Executor.executeToInputStream("docker-machine inspect " + name);
+            is = Executor.executeToInputStream("docker-machine inspect " + getName());
             return jsonMapper.readJsonData(is);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to inspect docker " + name, e);
+            throw new IllegalStateException("Failed to inspect docker " + getName(), e);
         }
     }
 
@@ -242,8 +231,8 @@ public final class DockerMachine implements Machine {
      */
     public MachineStatus refreshStatus(){
         try{
-            String ret = Executor.execute("docker-machine status " + name);
-            if(("Host \""+name+"\" does not exist").equals(ret)){
+            String ret = Executor.execute("docker-machine status " + getName());
+            if(("Host \""+getName()+"\" does not exist").equals(ret)){
                 this.status = MachineStatus.NotExisting;
             }
             else{
@@ -260,10 +249,10 @@ public final class DockerMachine implements Machine {
      * Restarts a docker-machine.
      */
     public void restart(){
-        String result = Executor.execute("docker-docker-machine restart " + name);
+        String result = Executor.execute("docker-docker-machine restart " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to restart docker-machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to restart docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Running;
     }
@@ -272,17 +261,17 @@ public final class DockerMachine implements Machine {
      * Regenerates the TLS certificates.
      */
     public void regenerateCerts(){
-        String result = Executor.execute("docker-docker-machine regenerate " + name);
+        String result = Executor.execute("docker-docker-machine regenerate " + getName());
     }
 
     /**
      * Removes a docker-machine.
      */
     public void remove(){
-        String result = Executor.execute("docker-docker-machine remove " + name);
+        String result = Executor.execute("docker-docker-machine remove " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to kill docker-machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to kill docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.NotExisting;
     }
@@ -291,10 +280,10 @@ public final class DockerMachine implements Machine {
      * Removes the docker-machine completely.
      */
     public void kill(){
-        String result = Executor.execute("docker-docker-machine kill " + name);
+        String result = Executor.execute("docker-docker-machine kill " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to kill docker-machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to kill docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Stopped;
     }
@@ -303,10 +292,10 @@ public final class DockerMachine implements Machine {
      * Starts the docker-machine.
      */
     public void start(){
-        String result = Executor.execute("docker-docker-machine start " + name);
+        String result = Executor.execute("docker-docker-machine start " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to start docker-machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to start docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Running;
     }
@@ -315,10 +304,10 @@ public final class DockerMachine implements Machine {
      * Stops the docker-machine.
      */
     public void stop(){
-        String result = Executor.execute("docker-docker-machine stop " + name);
+        String result = Executor.execute("docker-docker-machine stop " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to stop docker-machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to stop docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Stopped;
     }
@@ -340,10 +329,10 @@ public final class DockerMachine implements Machine {
      */
     public URI refreshURL(){
         try {
-            this.url = new URI(Executor.execute("docker-machine url " + name));
+            this.url = new URI(Executor.execute("docker-machine url " + getName()));
             return this.url;
         } catch (URISyntaxException e) {
-            throw new IllegalStateException("Failed to evaluate docker-machine URL for " + name, e);
+            throw new IllegalStateException("Failed to evaluate docker-machine URL for " + getName(), e);
         }
     }
 
@@ -351,10 +340,10 @@ public final class DockerMachine implements Machine {
      * Upgrades the docker-machine to the latest version of DockerNodeRegistry.
      */
     public void upgrade(){
-        String result = Executor.execute("docker-machine upgrade " + name);
+        String result = Executor.execute("docker-machine upgrade " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to upgrade docker-machine " + name + " -> " + result);
+            throw new DockerMachineException("Failed to upgrade docker-machine " + getName() + " -> " + result);
         }
     }
 
@@ -380,10 +369,10 @@ public final class DockerMachine implements Machine {
 
     /**
      * Registers this machine into the global shared Docker repository accessible from
-     * {@link DockerNodeRegistry}.
+     * {@link HostRegistry}.
      */
-    public DockerNode registerMachineAsDockerNode(String...labels)throws Exception{
-        return DockerNodeRegistry.addDocker(name, createDockerClient(), labels);
+    public DockerMachine registerMachineAsDockerNode(String...labels)throws Exception{
+        return HostRegistry.addDocker(getName(), createDockerClient(), labels);
     }
 
     public void createMachine(){
@@ -449,6 +438,21 @@ public final class DockerMachine implements Machine {
         refreshStatus();
     }
 
+    public String getSimpleName(){
+        int index = getName().lastIndexOf('.');
+        if(index<0){
+            return getName();
+        }
+        return getName().substring(index+1);
+    }
+
+    public String getArea(){
+        int index = getName().lastIndexOf('.');
+        if(index<0){
+            return "";
+        }
+        return getName().substring(0,index);
+    }
 
     @Override
     public String toString() {
@@ -459,7 +463,7 @@ public final class DockerMachine implements Machine {
                 ", cpus=" + cpus +
                 ", url=" + url +
                 ", status=" + status +
-                ", name='" + name + '\'' +
+                ", configuration='" + configuration + '\'' +
                 '}';
     }
 }

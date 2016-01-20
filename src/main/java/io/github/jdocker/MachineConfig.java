@@ -16,24 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.machine;
+package io.github.jdocker;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
+import java.net.URI;
+
 /**
- * Request that encapsulates the possible parameters to be passed to {@code docker-maschine create <name>}.
+ * Simple Model of a docker-machine managed by docker docker-machine.
  */
-public class MachineConfigBuilder {
-    /** Log used. */
-    private static final Logger LOG = Logger.getLogger(MachineConfigBuilder.class.getName());
-    /** The machine's name. */
-    String name;
+public class MachineConfig {
+    private static final Logger LOG = Logger.getLogger(MachineConfig.class.getName());
+
+    /** The docker machine's name. */
+    private String name;
     /** Driver to create io.github.jdocker.machine with. Maps to {@code --driver, -d "none"}. */
     private String driver;
     /** Custom DockerNodeRegistry install URL to use for engine installation [$MACHINE_DOCKER_INSTALL_URL], default is
@@ -44,7 +41,7 @@ public class MachineConfigBuilder {
      * Specify arbitrary flags to include with the created engine in the form {@code flag=value}. Maps to
      * {@code --engine-opt [--engine-opt option --engine-opt option] }.
      */
-     private Set<String> engineOptions = new HashSet<>();
+    private Set<String> engineOptions = new HashSet<>();
     /** Specify insecure registries to allow with the created engine. Maps to
      * {@code --engine-insecure-registry [--engine-insecure-registry option --engine-insecure-registry option]}.
      */
@@ -74,9 +71,8 @@ public class MachineConfigBuilder {
     /** Address to advertise for swarm, maps to {@code ---swarm-addr "tcp://0.0.0.0:3376"} */
     private URI swarmAdvertizeURI;
 
-
-    MachineConfigBuilder(String name) {
-        this.name = Objects.requireNonNull(name);
+    MachineConfig(MachineConfigBuilder builder) {
+        this.name = Objects.requireNonNull(builder.name);
     }
 
     public String getName() {
@@ -111,7 +107,7 @@ public class MachineConfigBuilder {
         return Collections.unmodifiableSet(machineEnvironment);
     }
 
-    public boolean isConfigureMachineWithSwarm() {
+    public boolean isConfiguredWithSwarm() {
         return configureMachineWithSwarm;
     }
 
@@ -143,103 +139,35 @@ public class MachineConfigBuilder {
         return swarmAdvertizeURI;
     }
 
-    public MachineConfigBuilder setDriver(String driver) {
-        this.driver = driver;
-        return this;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MachineConfig machine = (MachineConfig) o;
+        return name.equals(machine.name);
     }
 
-    public MachineConfigBuilder setInstallURL(String installURL) {
-        this.installURL = installURL;
-        return this;
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 
-    public MachineConfigBuilder addEngineOption(String engineOption) {
-        this.engineOptions.add(engineOption);
-        return this;
-    }
-
-    public MachineConfigBuilder addInsecureRegistry(String insecureRegistry) {
-        this.insecureRegistries.add(insecureRegistry);
-        return this;
-    }
-
-    public MachineConfigBuilder addLabel(String label) {
-        this.labels.add(label);
-        return this;
-    }
-
-    public MachineConfigBuilder setStorageDriver(String storageDriver) {
-        this.storageDriver = storageDriver;
-        return this;
-    }
-
-    public MachineConfigBuilder addMachineEnvProperty(String machineEnvProperty) {
-        this.machineEnvironment.add(machineEnvProperty);
-        return this;
-    }
-
-    public MachineConfigBuilder setSwarmHost(String swarmDiscoveryToken) {
-        this.configureMachineWithSwarm = true;
-        this.swarmDiscoveryToken = Objects.requireNonNull(swarmDiscoveryToken);
-        return this;
-    }
-
-    public MachineConfigBuilder setSwarmMaster(String swarmDiscoveryToken) {
-        this.configureMachineWithSwarm = true;
-        this.swarmDiscoveryToken = Objects.requireNonNull(swarmDiscoveryToken);
-        this.swarmMaster = true;
-        return this;
-    }
-
-    public MachineConfigBuilder setSwarmImage(String swarmImage) {
-        this.swarmImage = swarmImage;
-        return this;
-    }
-
-    public MachineConfigBuilder setSwarmMaster(boolean swarmMaster) {
-        this.swarmMaster = swarmMaster;
-        return this;
-    }
-
-    public MachineConfigBuilder setSwarmDiscoveryToken(String swarmDiscoveryToken) {
-        this.swarmDiscoveryToken = swarmDiscoveryToken;
-        return this;
-    }
-
-    public MachineConfigBuilder setSwarmStrategy(String swarmStrategy) {
-        this.swarmStrategy = swarmStrategy;
-        return this;
-    }
-
-    public MachineConfigBuilder setSwarmEnvironment(Set<String> swarmEnvironment) {
-        this.swarmEnvironment = swarmEnvironment;
-        return this;
-    }
-
-    public MachineConfigBuilder setSwarmHostURI(URI swarmHostURI) {
-        this.swarmHostURI = swarmHostURI;
-        return this;
-    }
-
-    public MachineConfigBuilder setSwarmHostURI(String swarmHostURI) throws URISyntaxException {
-        return setSwarmHostURI(new URI(swarmHostURI));
-    }
-
-    public MachineConfigBuilder setSwarmAdvertizeURI(URI swarmAdvertizeURI) {
-        this.swarmAdvertizeURI = swarmAdvertizeURI;
-        return this;
-    }
-
-    public MachineConfigBuilder setSwarmAdvertizeURI(String swarmAdvertizeURI) throws URISyntaxException {
-        return setSwarmAdvertizeURI(new URI(swarmAdvertizeURI));
+    @Override
+    public String toString() {
+        return "MachineConfig{" +
+                "name='" + name + '\'' +
+                ", driver='" + driver + '\'' +
+                '}';
     }
 
     /**
-     * This method collects all data from the current request and calls {@code docker-machine} to create the instance.
-     * @return a new machine instance. Please check the machine's status to evaluate if the creation command was
-     * successful {@code status=MachineStatus.Running}.
+     * Creates a new builder for a machine. Building the machine will also call docker-machine to create the instance.
+     * @param name the machine's name, not null.
+     * @return the new builder.
      */
-    public MachineConfig build(){
-        return new MachineConfig(this);
+    public static MachineConfigBuilder builder(String name){
+        return new MachineConfigBuilder(name);
     }
 }

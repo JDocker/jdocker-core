@@ -16,33 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.machine;
+package io.github.jdocker;
 
-import com.spotify.docker.client.DefaultDockerClient;
-import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerClient;
-import io.github.jdocker.DockerNode;
-import io.github.jdocker.DockerNodeRegistry;
-import io.github.jdocker.common.Executor;
-import io.github.jdocker.common.JSONMapper;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Interface representing a docker container host.
  */
-public interface Machine {
+public interface DockerMachine extends Host{
 
     String getName();
 
@@ -60,6 +45,11 @@ public interface Machine {
     MachineStatus getMachineStatus();
 
     MachineConfig getConfiguration();
+
+    String getSimpleName();
+
+    public String getArea();
+
 
     /**
      * Refreshes the machine's state and data, typically returning the JSON as returned by the docker API, mapped to a
@@ -204,13 +194,17 @@ public interface Machine {
      */
     long getLastUpdate();
 
-    DockerClient createDockerClient() throws Exception ;
+    /**
+     * Creates a client for accessing the docker host.
+     * @return a client for accessing, not null
+     */
+    DockerClient createDockerClient();
 
     /**
      * Registers this machine into the global shared Docker repository accessible from
-     * {@link io.github.jdocker.DockerNodeRegistry}.
+     * {@link HostRegistry}.
      */
-    DockerNode registerMachineAsDockerNode(String...labels)throws Exception;
+    DockerMachine registerMachineAsDockerNode(String...labels);
 
     /**
      * Creates the machine and configures it for being eligible as deployment target.

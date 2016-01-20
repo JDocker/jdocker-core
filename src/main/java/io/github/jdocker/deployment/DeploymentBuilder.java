@@ -22,27 +22,26 @@ import com.spotify.docker.client.messages.ContainerConfig;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by atsticks on 19.01.16.
  */
 public class DeploymentBuilder {
 
-    List<Deployment.ContainerRequest> requests = new ArrayList<>();
+    List<ContainerRequest> requests = new ArrayList<>();
 
-    public DeploymentBuilder addRequest(Deployment.ContainerRequest request) {
+    public DeploymentBuilder addRequest(ContainerRequest request) {
         this.requests.add(request);
         return this;
     }
 
     public DeploymentBuilder addRequest(ContainerConfig config, int scale) {
-        this.requests.add(Deployment.ContainerRequest.of(config, scale));
+        this.requests.add(ContainerRequest.of(config, scale));
         return this;
     }
 
     public DeploymentBuilder addRequest(ContainerConfig config) {
-        this.requests.add(Deployment.ContainerRequest.of(config, 1));
+        this.requests.add(ContainerRequest.of(config, 1));
         return this;
     }
 
