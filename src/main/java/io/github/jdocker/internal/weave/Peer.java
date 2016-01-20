@@ -16,33 +16,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker;
+package io.github.jdocker.internal.weave;
 
-import java.net.URI;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Interface representing an unpooled host.
+ * Created by atsticks on 17.01.16.
  */
-public interface Host{
+public class Peer{
 
-    String getName();
+    private String name;
+    private String nickName;
+    private long id;
+    private long shortId;
+    private int version;
+    private Set<String> connections = new HashSet<>();
 
-    /**
-     * Get the docker-machine^s URL.
-     * @return
-     */
-    URI getURL();
 
-    /**
-     * Pings the machine.
-     */
-    void ping();
+    public String getName() {
+        return name;
+    }
 
-    /**
-     * Properties, e.g. for accessing the machine with ssh or similar.
-     * @return the hsot properties, not null.
-     */
-    Map<String,String> getProperties();
+    public String getNickName() {
+        return nickName;
+    }
 
+    public long getId() {
+        return id;
+    }
+
+    public long getShortId() {
+        return shortId;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public Set<String> getConnections() {
+        return connections;
+    }
 }

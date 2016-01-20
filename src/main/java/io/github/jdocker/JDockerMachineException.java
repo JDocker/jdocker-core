@@ -16,31 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.networking.weave;
+package io.github.jdocker;
+
 
 /**
- * Weave networking config.
+ * Created by atsticks on 12.01.16.
  */
-public class NetworkConfig {
+public class JDockerMachineException extends RuntimeException{
 
-    private String weaveVersion;
-    private RouterConfig routerConfig;
-    private IPAMConfig ipamConfig;
-    private DNSConfig dnsCOnfig;
-
-    public String getWeaveVersion() {
-        return weaveVersion;
+    public JDockerMachineException(Throwable cause) {
+        super(cause);
     }
 
-    public RouterConfig getRouterConfig() {
-        return routerConfig;
+    public JDockerMachineException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public IPAMConfig getIpamConfig() {
-        return ipamConfig;
-    }
-
-    public DNSConfig getDnsCOnfig() {
-        return dnsCOnfig;
+    public JDockerMachineException(String message) {
+        super(message);
     }
 }

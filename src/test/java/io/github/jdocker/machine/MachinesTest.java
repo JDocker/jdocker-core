@@ -1,7 +1,6 @@
 package io.github.jdocker.machine;
 
 import io.github.jdocker.MachineConfig;
-import io.github.jdocker.Machines;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 

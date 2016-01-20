@@ -2,7 +2,7 @@ package io.github.jdocker;
 
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.messages.ContainerInfo;
-import io.github.jdocker.deployment.internal.DefaultContainer;
+import io.github.jdocker.internal.DefaultContainer;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -11,15 +11,15 @@ import java.util.logging.Logger;
 /**
  * Created by atsticks on 19.01.16.
  */
-public final class ContainerManager {
+public final class Containers {
 
-    private static final Logger LOG = Logger.getLogger(ContainerManager.class.getName());
+    private static final Logger LOG = Logger.getLogger(Containers.class.getName());
 
-    private ContainerManager(){}
+    private Containers(){}
 
-    public static Collection<ContainerHost> getContainers(String containerName)   {
-        List<ContainerHost> result = new ArrayList<>();
-        for(DockerMachine docker: HostRegistry.getDockers()) {
+    public static Collection<JDockerContainer> getContainers(String containerName)   {
+        List<JDockerContainer> result = new ArrayList<>();
+        for(JDockerMachine docker: Machines.getDockers()) {
             DockerClient client = docker.createDockerClient();
             List<com.spotify.docker.client.messages.Container> containers = null;
             try {
@@ -43,9 +43,9 @@ public final class ContainerManager {
         return result;
     }
 
-    public static Collection<ContainerHost> getExitedContainers()   {
-        List<ContainerHost> result = new ArrayList<>();
-        for(DockerMachine docker: HostRegistry.getDockers()) {
+    public static Collection<JDockerContainer> getExitedContainers()   {
+        List<JDockerContainer> result = new ArrayList<>();
+        for(JDockerMachine docker: Machines.getDockers()) {
             DockerClient client = docker.createDockerClient();
             List<com.spotify.docker.client.messages.Container> containers = null;
             try {
@@ -69,9 +69,9 @@ public final class ContainerManager {
         return result;
     }
 
-    public static Collection<ContainerHost> getContainersWithLabels(String... labels)   {
-        List<ContainerHost> result = new ArrayList<>();
-        for(DockerMachine docker: HostRegistry.getDockers()) {
+    public static Collection<JDockerContainer> getContainersWithLabels(String... labels)   {
+        List<JDockerContainer> result = new ArrayList<>();
+        for(JDockerMachine docker: Machines.getDockers()) {
             DockerClient client = docker.createDockerClient();
             List<com.spotify.docker.client.messages.Container> containers = null;
             try {
@@ -108,26 +108,26 @@ public final class ContainerManager {
         return result;
     }
 
-    public static void removeContainer(ContainerHost container) {
+    public static void removeContainer(JDockerContainer container) {
         try {
-            HostRegistry.getDocker(container.dockerNode()).createDockerClient().removeContainer(container.getInstance().id());
+            Machines.getDocker(container.getHostName()).createDockerClient().removeContainer(container.getInstance().id());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void stopContainer(ContainerHost container, int secondsBeforeKilling) {
+    public static void stopContainer(JDockerContainer container, int secondsBeforeKilling) {
         try {
-            HostRegistry.getDocker(container.dockerNode()).createDockerClient().stopContainer(
+            Machines.getDocker(container.getHostName()).createDockerClient().stopContainer(
                     container.getInstance().id(), secondsBeforeKilling);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void startContainer(ContainerHost container) {
+    public static void startContainer(JDockerContainer container) {
         try {
-            HostRegistry.getDocker(container.dockerNode()).createDockerClient().startContainer(
+            Machines.getDocker(container.getHostName()).createDockerClient().startContainer(
                     container.getInstance().id());
         } catch (Exception e) {
             e.printStackTrace();

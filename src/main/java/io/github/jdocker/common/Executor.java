@@ -18,7 +18,7 @@
  */
 package io.github.jdocker.common;
 
-import io.github.jdocker.DockerMachine;
+import io.github.jdocker.JDockerMachine;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,7 +28,9 @@ import java.io.InputStreamReader;
 /**
  * Created by atsticks on 12.01.16.
  */
-public class Executor {
+public final class Executor {
+
+    private Executor(){}
 
     public static String execute(String... commands) {
         StringBuffer output = new StringBuffer();
@@ -57,7 +59,7 @@ public class Executor {
         return p.getInputStream();
     }
 
-    public static String executeRemote(DockerMachine machine, String s) {
+    public static String executeRemote(JDockerMachine machine, String s) {
         // open ssh session on machine...
         throw new UnsupportedOperationException("Not implemented yet.");
     }

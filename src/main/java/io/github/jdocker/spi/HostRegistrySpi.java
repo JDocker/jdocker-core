@@ -20,8 +20,8 @@ package io.github.jdocker.spi;
 
 import com.google.common.base.Predicate;
 import com.spotify.docker.client.DockerClient;
-import io.github.jdocker.DockerMachine;
-import io.github.jdocker.Host;
+import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.UnpooledMachine;
 
 import java.util.Collection;
 import java.util.Set;
@@ -31,38 +31,38 @@ import java.util.Set;
  */
 public interface HostRegistrySpi {
 
-    DockerMachine addDocker(String name, DockerClient client, String... labels);
+    JDockerMachine addDocker(String name, DockerClient client, String... labels);
 
-    DockerMachine getDocker(String name);
+    JDockerMachine getDocker(String name);
 
-    Collection<DockerMachine> getDockerMachines(Predicate<DockerMachine> predicate);
+    Collection<JDockerMachine> getDockerMachines(Predicate<JDockerMachine> predicate);
 
-    Collection<DockerMachine> getDockerMachines();
+    Collection<JDockerMachine> getDockerMachines();
 
     Set<String> getDockerHostNames();
 
-    DockerMachine removeDockerHost(String name);
+    JDockerMachine removeDockerHost(String name);
 
-    void removeDockerHosts(Predicate<DockerMachine> predicate);
+    void removeDockerHosts(Predicate<JDockerMachine> predicate);
 
     /**
      * Add an ssh-accessible machine. to the pool of machines.
      * @param host the machine, not null
      */
-    void addHost(Host host);
+    void addHost(UnpooledMachine host);
 
     /**
      * Get a list with all currently known, but not used machines.
      * @return all unused machines.
      */
-    Collection<Host> getHosts();
+    Collection<UnpooledMachine> getHosts();
 
     /**
      * Get the machine instance for an ip address.
      * @param address the address, or resolvable dns name, not null.
      * @return the machine instance, or null, if the machine is not registered.
      */
-    Host getHost(String address);
+    UnpooledMachine getHost(String address);
 
     /**
      * Get current pool size;

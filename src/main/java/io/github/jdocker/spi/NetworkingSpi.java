@@ -19,7 +19,7 @@
 package io.github.jdocker.spi;
 
 import com.spotify.docker.client.messages.ContainerInfo;
-import io.github.jdocker.DockerMachine;
+import io.github.jdocker.JDockerMachine;
 import io.github.jdocker.networking.NetworkingStatus;
 import io.github.jdocker.networking.SecurityProfile;
 import io.github.jdocker.networking.SecurityProfileBuilder;
@@ -47,19 +47,19 @@ public interface NetworkingSpi {
      * Installs all needed required to run networking with the given machine.
      * @param machine the target machine, not null.
      */
-    void installNetworking(DockerMachine machine);
+    void installNetworking(JDockerMachine machine);
 
     /**
      * Stops networking on a given docker machine.
      * @param machine the machine, not null.
      */
-    void stopNetworking(DockerMachine machine);
+    void stopNetworking(JDockerMachine machine);
 
     /**
      * Starts networking on a given docker machine.
      * @param machine the machine, not null.
      */
-    void startNetworking(DockerMachine machine);
+    void startNetworking(JDockerMachine machine);
 
     /**
      * Create a security profile. Security profiles can be reused for several containers.

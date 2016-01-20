@@ -16,45 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.networking.weave;
-
-import java.util.HashSet;
-import java.util.Set;
+package io.github.jdocker.internal.weave;
 
 /**
- * Created by atsticks on 17.01.16.
+ * Weave networking config.
  */
-public class Peer{
+public class NetworkConfig {
 
-    private String name;
-    private String nickName;
-    private long id;
-    private long shortId;
-    private int version;
-    private Set<String> connections = new HashSet<>();
+    private String weaveVersion;
+    private RouterConfig routerConfig;
+    private IPAMConfig ipamConfig;
+    private DNSConfig dnsCOnfig;
 
-
-    public String getName() {
-        return name;
+    public String getWeaveVersion() {
+        return weaveVersion;
     }
 
-    public String getNickName() {
-        return nickName;
+    public RouterConfig getRouterConfig() {
+        return routerConfig;
     }
 
-    public long getId() {
-        return id;
+    public IPAMConfig getIpamConfig() {
+        return ipamConfig;
     }
 
-    public long getShortId() {
-        return shortId;
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public Set<String> getConnections() {
-        return connections;
+    public DNSConfig getDnsCOnfig() {
+        return dnsCOnfig;
     }
 }

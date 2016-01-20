@@ -21,11 +21,11 @@ package io.github.jdocker.internal;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerClient;
-import io.github.jdocker.DockerMachine;
-import io.github.jdocker.HostRegistry;
+import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.Machines;
 import io.github.jdocker.common.Executor;
 import io.github.jdocker.common.JSONMapper;
-import io.github.jdocker.DockerMachineException;
+import io.github.jdocker.JDockerMachineException;
 import io.github.jdocker.MachineConfig;
 import io.github.jdocker.MachineStatus;
 
@@ -42,7 +42,7 @@ import java.util.logging.Logger;
 /**
  * Created by atsticks on 17.01.16.
  */
-public final class DefaultDockerMachine implements DockerMachine {
+public final class DefaultDockerMachine implements JDockerMachine {
 
     private static final Logger LOG = Logger.getLogger(DefaultDockerMachine.class.getName());
 
@@ -252,7 +252,7 @@ public final class DefaultDockerMachine implements DockerMachine {
         String result = Executor.execute("docker-docker-machine restart " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to restart docker-machine " + getName() + " -> " + result);
+            throw new JDockerMachineException("Failed to restart docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Running;
     }
@@ -271,7 +271,7 @@ public final class DefaultDockerMachine implements DockerMachine {
         String result = Executor.execute("docker-docker-machine remove " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to kill docker-machine " + getName() + " -> " + result);
+            throw new JDockerMachineException("Failed to kill docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.NotExisting;
     }
@@ -283,7 +283,7 @@ public final class DefaultDockerMachine implements DockerMachine {
         String result = Executor.execute("docker-docker-machine kill " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to kill docker-machine " + getName() + " -> " + result);
+            throw new JDockerMachineException("Failed to kill docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Stopped;
     }
@@ -295,7 +295,7 @@ public final class DefaultDockerMachine implements DockerMachine {
         String result = Executor.execute("docker-docker-machine start " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to start docker-machine " + getName() + " -> " + result);
+            throw new JDockerMachineException("Failed to start docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Running;
     }
@@ -307,7 +307,7 @@ public final class DefaultDockerMachine implements DockerMachine {
         String result = Executor.execute("docker-docker-machine stop " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to stop docker-machine " + getName() + " -> " + result);
+            throw new JDockerMachineException("Failed to stop docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Stopped;
     }
@@ -321,6 +321,17 @@ public final class DefaultDockerMachine implements DockerMachine {
             return refreshURL();
         }
         return url;
+    }
+
+    @Override
+    public boolean ping() {
+        // TODO implement ping
+        return true;
+    }
+
+    @Override
+    public Map<String, String> getProperties() {
+        return null;
     }
 
     /**
@@ -343,7 +354,7 @@ public final class DefaultDockerMachine implements DockerMachine {
         String result = Executor.execute("docker-machine upgrade " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new DockerMachineException("Failed to upgrade docker-machine " + getName() + " -> " + result);
+            throw new JDockerMachineException("Failed to upgrade docker-machine " + getName() + " -> " + result);
         }
     }
 
@@ -355,24 +366,33 @@ public final class DefaultDockerMachine implements DockerMachine {
         return lastUpdated;
     }
 
-    public DockerClient createDockerClient() throws Exception {
-        Map<String,String> machineData = inspect();
-        return DefaultDockerClient.builder().dockerCertificates(
-                DockerCertificates.builder().dockerCertPath(
-                        new File(machineData.get("HostOptions.AuthOptions.ServerCertPath")).toPath())
-                        .caCertPath(
-                                new File(machineData.get("HostOptions.AuthOptions.CaCertPath")).toPath())
-                        .clientCertPath(new File(machineData.get("HostOptions.AuthOptions.ClientCertPath")).toPath())
-                        .clientKeyPath(new File(machineData.get("HostOptions.AuthOptions.ClientKeyPath")).toPath()).build().get())
-                .uri(getURL()).build();
+    public DockerClient createDockerClient() {
+        try {
+            Map<String, String> machineData = inspect();
+            return DefaultDockerClient.builder().dockerCertificates(
+                    DockerCertificates.builder().dockerCertPath(
+                            new File(machineData.get("HostOptions.AuthOptions.ServerCertPath")).toPath())
+                            .caCertPath(
+                                    new File(machineData.get("HostOptions.AuthOptions.CaCertPath")).toPath())
+                            .clientCertPath(new File(machineData.get("HostOptions.AuthOptions.ClientCertPath")).toPath())
+                            .clientKeyPath(new File(machineData.get("HostOptions.AuthOptions.ClientKeyPath")).toPath()).build().get())
+                    .uri(getURL()).build();
+        }
+        catch(Exception e){
+            throw new IllegalStateException("Failed to create Docker Client", e);
+        }
     }
 
     /**
      * Registers this machine into the global shared Docker repository accessible from
-     * {@link HostRegistry}.
+     * {@link Machines}.
      */
-    public DockerMachine registerMachineAsDockerNode(String...labels)throws Exception{
-        return HostRegistry.addDocker(getName(), createDockerClient(), labels);
+    public JDockerMachine registerMachineAsDockerNode(String...labels){
+        try {
+            return Machines.addDocker(getName(), createDockerClient(), labels);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to create DockerClient", e);
+        }
     }
 
     public void createMachine(){
@@ -436,22 +456,6 @@ public final class DefaultDockerMachine implements DockerMachine {
             LOG.info("MACHINE CREATION PROBABLY FAILED: " + result);
         }
         refreshStatus();
-    }
-
-    public String getSimpleName(){
-        int index = getName().lastIndexOf('.');
-        if(index<0){
-            return getName();
-        }
-        return getName().substring(index+1);
-    }
-
-    public String getArea(){
-        int index = getName().lastIndexOf('.');
-        if(index<0){
-            return "";
-        }
-        return getName().substring(0,index);
     }
 
     @Override

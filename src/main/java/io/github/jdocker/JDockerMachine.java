@@ -27,12 +27,9 @@ import java.util.Set;
 /**
  * Interface representing a docker container host.
  */
-public interface DockerMachine extends Host{
+public interface JDockerMachine extends UnpooledMachine {
 
     String getName();
-
-    /** The timestamp, when the docker-machine overall state was refreshed. */
-    long lastUpdated = System.currentTimeMillis();
 
     int getCPUs();
 
@@ -42,13 +39,7 @@ public interface DockerMachine extends Host{
 
     long getLastUpdated();
 
-    MachineStatus getMachineStatus();
-
     MachineConfig getConfiguration();
-
-    String getSimpleName();
-
-    public String getArea();
 
 
     /**
@@ -147,46 +138,84 @@ public interface DockerMachine extends Host{
      */
     MachineStatus refreshStatus();
 
+
+
+    default MachineStatus getMachineStatus(){
+        return Machines.getMachineStatus(this);
+    }
+
+    default String getSimpleName(){
+        int index = getName().lastIndexOf('.');
+        if(index<0){
+            return getName();
+        }
+        return getName().substring(index+1);
+    }
+
+    default String getArea(){
+        int index = getName().lastIndexOf('.');
+        if(index<0){
+            return "";
+        }
+        return getName().substring(0,index);
+    }
+
     /**
      * Restarts a docker-machine.
      */
-    void restart();
+    default void restart(){
+        Machines.restart(this);
+    }
 
     /**
      * Regenerates the TLS certificates.
      */
-    void regenerateCerts();
+    default void regenerateCerts(){
+        Machines.regenerateCerts(this);
+    }
 
     /**
      * Removes a docker-machine.
      */
-    void remove();
+    default void remove(){
+        Machines.remove(this);
+    }
 
     /**
      * Removes the docker-machine completely.
      */
-    void kill();
+    default void kill(){
+        Machines.kill(this);
+    }
 
     /**
      * Starts the docker-machine.
      */
-    void start();
+    default void start(){
+        Machines.start(this);
+    }
 
     /**
      * Stops the docker-machine.
      */
-    void stop();
+    default void stop(){
+        Machines.stop(this);
+    }
 
     /**
      * Get the docker-machine^s URL.
      * @return
      */
-    URI getURL();
+    default URI getURL(){
+        return Machines.getURL(this);
+    }
 
     /**
      * Upgrades the docker-machine to the latest version of DockerNodeRegistry.
      */
-    void upgrade();
+    default void upgrade(){
+        Machines.upgrade(this);
+    }
 
     /**
      * Get the UTC timestamp of the last full update of this docker-machine's state.
@@ -198,17 +227,15 @@ public interface DockerMachine extends Host{
      * Creates a client for accessing the docker host.
      * @return a client for accessing, not null
      */
-    DockerClient createDockerClient();
-
-    /**
-     * Registers this machine into the global shared Docker repository accessible from
-     * {@link HostRegistry}.
-     */
-    DockerMachine registerMachineAsDockerNode(String...labels);
+    default DockerClient createDockerClient(){
+        return Machines.createDockerClient(this);
+    }
 
     /**
      * Creates the machine and configures it for being eligible as deployment target.
      */
-    void createMachine();
+    default void createMachine(){
+        Machines.createMachine(this);
+    }
 
 }

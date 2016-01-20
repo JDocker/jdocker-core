@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.networking.calico;
+package io.github.jdocker.internal.calico;
 
 import com.spotify.docker.client.messages.ContainerInfo;
 import io.github.jdocker.common.Executor;
-import io.github.jdocker.DockerMachine;
+import io.github.jdocker.JDockerMachine;
 import io.github.jdocker.networking.NetworkingStatus;
 import io.github.jdocker.networking.SecurityProfile;
 import io.github.jdocker.spi.NetworkingSpi;
@@ -52,19 +52,19 @@ public class CalicoNetworkingSpi implements NetworkingSpi{
     }
 
     @Override
-    public void installNetworking(DockerMachine machine){
+    public void installNetworking(JDockerMachine machine){
         String result = Executor.executeRemote(machine, "calicoctl node --libnetwork");
         // TODO check for errors
     }
 
     @Override
-    public void stopNetworking(DockerMachine machine){
+    public void stopNetworking(JDockerMachine machine){
         String result =   Executor.executeRemote(machine, "sudo calicoctl node stop");
         // TODO check for errors
     }
 
     @Override
-    public void startNetworking(DockerMachine machine){
+    public void startNetworking(JDockerMachine machine){
         String result =   Executor.executeRemote(machine, "sudo calicoctl node start");
         // TODO check for errors
     }
@@ -195,6 +195,11 @@ public class CalicoNetworkingSpi implements NetworkingSpi{
     public void removeSecurityProfiles(ContainerInfo container, SecurityProfile... profiles){
         String result = Executor.execute("calicoctl container "+container.id()+" profile remove " + formatProfiles(profiles));
         // TODO check result
+    }
+
+    @Override
+    public SecurityProfile getSecurityProfile(ContainerInfo container) {
+        return getSecurityProfile(container.id());
     }
 
     @Override

@@ -18,23 +18,25 @@
  */
 package io.github.jdocker.deployment;
 
-import io.github.jdocker.DockerMachine;
+import io.github.jdocker.JDockerMachine;
 
 import java.util.Collection;
 
 /**
- * Class that defines which docker nodes can be used for this deployment.
+ * Instances implementing this interface are responsible for defining the effective nodes that will be called for
+ * deployment.
  */
-public interface DockerNodeElector {
+public interface DockerMachineSelector {
 
     /**
-     * Evaluates the possible deployment targets. This does a selection from all known nodes in the system that
-     * match the deployment's configuration. It is the responsibility of the {@link DockerNodeSelector} to
-     * effectively define the effective deployment targets called for deployment.
-     * @param request the deployment, not null
-     * @return the collection of eligible nodes, never null.
+     * Select the effective target nodes from the eligible nodes.
+     * @param electedNodes the node set from where to choose the best matching nodes, e.g. based on existing usage and
+     *                     load, or other runtime characteristics.
+     * @param request the concrete deployment subrequest.
+     * @return the set of nodes to be called for deployment, never null. If the number of nodes does not match the
+     * requested {@link JDockerContainerRequest#getScale()} a warning must be logged.
      */
-    Collection<DockerMachine> evaluateTargetNodes(ContainerRequest request);
-
-
+    Collection<JDockerMachine> selectTargetNodes(Collection<JDockerMachine> electedNodes,
+                                                 JDockerContainerRequest request);
+    
 }

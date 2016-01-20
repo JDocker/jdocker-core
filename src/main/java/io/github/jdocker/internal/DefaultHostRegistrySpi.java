@@ -24,8 +24,8 @@ import com.spotify.docker.client.DockerCertificateException;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.messages.AuthConfig;
-import io.github.jdocker.DockerMachine;
-import io.github.jdocker.Host;
+import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.UnpooledMachine;
 import io.github.jdocker.MachineConfig;
 import io.github.jdocker.MachineConfigBuilder;
 import io.github.jdocker.spi.HostRegistrySpi;
@@ -44,8 +44,8 @@ import java.util.logging.Logger;
 public class DefaultHostRegistrySpi implements HostRegistrySpi {
 
     private static final Logger LOG = Logger.getLogger(DefaultHostRegistrySpi.class.getName());
-    private static final Map<String, DockerMachine> DOCKERS = new ConcurrentHashMap<>();
-    private static final Map<String, Host> UNPOOLED = new ConcurrentHashMap<>();
+    private static final Map<String, JDockerMachine> DOCKERS = new ConcurrentHashMap<>();
+    private static final Map<String, UnpooledMachine> UNPOOLED = new ConcurrentHashMap<>();
 
     public DefaultHostRegistrySpi(){
         // read master config from Tamaya
@@ -69,7 +69,7 @@ public class DefaultHostRegistrySpi implements HostRegistrySpi {
         }
     }
 
-    private DockerMachine initMachine(String name, Configuration config) {
+    private JDockerMachine initMachine(String name, Configuration config) {
         MachineConfig mConfig = readMachineConfig(config);
         DefaultDockerMachine m = new DefaultDockerMachine(mConfig);
         return m;
@@ -162,7 +162,7 @@ public class DefaultHostRegistrySpi implements HostRegistrySpi {
     }
 
     @Override
-    public DockerMachine addDocker(String name, DockerClient client, String... labels){
+    public JDockerMachine addDocker(String name, DockerClient client, String... labels){
         MachineConfigBuilder builder = new MachineConfigBuilder(name);
         DefaultDockerMachine dockerHost = new DefaultDockerMachine(builder.build());
         DefaultHostRegistrySpi.DOCKERS.put(name, dockerHost);
@@ -170,14 +170,14 @@ public class DefaultHostRegistrySpi implements HostRegistrySpi {
     }
 
     @Override
-    public DockerMachine getDocker(String name){
+    public JDockerMachine getDocker(String name){
         return DefaultHostRegistrySpi.DOCKERS.remove(name);
     }
 
     @Override
-    public Collection<DockerMachine> getDockerMachines(Predicate<DockerMachine> predicate) {
-        List<DockerMachine> found = new ArrayList<>();
-        for(DockerMachine host:this.getDockerMachines()){
+    public Collection<JDockerMachine> getDockerMachines(Predicate<JDockerMachine> predicate) {
+        List<JDockerMachine> found = new ArrayList<>();
+        for(JDockerMachine host:this.getDockerMachines()){
             if(predicate.apply(host)){
                 found.add(host);
             }
@@ -186,7 +186,7 @@ public class DefaultHostRegistrySpi implements HostRegistrySpi {
     }
 
     @Override
-    public Collection<DockerMachine> getDockerMachines(){
+    public Collection<JDockerMachine> getDockerMachines(){
         return DefaultHostRegistrySpi.DOCKERS.values();
     }
 
@@ -196,14 +196,14 @@ public class DefaultHostRegistrySpi implements HostRegistrySpi {
     }
 
     @Override
-    public DockerMachine removeDockerHost(String name){
+    public JDockerMachine removeDockerHost(String name){
         return DefaultHostRegistrySpi.DOCKERS.remove(name);
     }
 
     @Override
-    public void removeDockerHosts(Predicate<DockerMachine> predicate) {
-        List<DockerMachine> found = new ArrayList<>();
-        for(DockerMachine host:this.getDockerMachines()){
+    public void removeDockerHosts(Predicate<JDockerMachine> predicate) {
+        List<JDockerMachine> found = new ArrayList<>();
+        for(JDockerMachine host:this.getDockerMachines()){
             if(predicate.apply(host)){
                 DefaultHostRegistrySpi.DOCKERS.remove(host.getName());
             }
@@ -211,17 +211,17 @@ public class DefaultHostRegistrySpi implements HostRegistrySpi {
     }
 
     @Override
-    public void addHost(Host machine) {
+    public void addHost(UnpooledMachine unpooledMachine) {
 
     }
 
     @Override
-    public Collection<Host> getHosts() {
+    public Collection<UnpooledMachine> getHosts() {
         return null;
     }
 
     @Override
-    public Host getHost(String address) {
+    public UnpooledMachine getHost(String address) {
         return null;
     }
 

@@ -19,8 +19,8 @@
 package io.github.jdocker.deployment;
 
 import com.spotify.docker.client.messages.ContainerConfig;
-import io.github.jdocker.ContainerManager;
-import io.github.jdocker.ContainerHost;
+import io.github.jdocker.Containers;
+import io.github.jdocker.JDockerContainer;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -32,19 +32,22 @@ public class Deployment {
     private static final Logger LOG = Logger.getLogger(Deployment.class.getName());
 
     private String id = UUID.randomUUID().toString();
-    private List<ContainerRequest> requests = new ArrayList<>();
+    private List<JDockerContainerRequest> requests = new ArrayList<>();
 
     /**
      * Instantiates a new Container request.
      */
-    public Deployment(Collection<ContainerRequest> requests){
+    public Deployment(Collection<JDockerContainerRequest> requests){
         this.requests.addAll(Objects.requireNonNull(requests));
-        for(ContainerRequest req:requests){
+        for(JDockerContainerRequest req:requests){
             req.getContainerConfig().labels().put("deployment", id);
         }
     }
 
     Deployment(DeploymentBuilder deploymentBuilder) {
+        for(JDockerContainerRequest req:deploymentBuilder.requests){
+            req.deployment = this;
+        }
         this.requests.addAll(Objects.requireNonNull(deploymentBuilder.requests));
     }
 
@@ -52,12 +55,12 @@ public class Deployment {
         return id;
     }
 
-    public List<ContainerRequest> getRequests() {
+    public List<JDockerContainerRequest> getRequests() {
         return Collections.unmodifiableList(requests);
     }
 
-    public Collection<ContainerHost> getInstances() {
-        return ContainerManager.getContainersWithLabels("deployment="+id);
+    public Collection<JDockerContainer> getInstances() {
+        return Containers.getContainersWithLabels("deployment="+id);
     }
 
     @Override
@@ -90,8 +93,8 @@ public class Deployment {
      * @param scale the scale.
      * @return the request.
      */
-    public ContainerRequest createRequest(ContainerConfig config, int scale){
-        return new ContainerRequest(this, config, scale);
+    public JDockerContainerRequest createRequest(ContainerConfig config, int scale){
+        return new JDockerContainerRequest(this, config, scale);
     }
 
 }

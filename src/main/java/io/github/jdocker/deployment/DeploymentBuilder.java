@@ -28,20 +28,20 @@ import java.util.List;
  */
 public class DeploymentBuilder {
 
-    List<ContainerRequest> requests = new ArrayList<>();
+    List<JDockerContainerRequest> requests = new ArrayList<>();
 
-    public DeploymentBuilder addRequest(ContainerRequest request) {
+    public DeploymentBuilder addRequest(JDockerContainerRequest request) {
         this.requests.add(request);
         return this;
     }
 
     public DeploymentBuilder addRequest(ContainerConfig config, int scale) {
-        this.requests.add(ContainerRequest.of(config, scale));
+        this.requests.add(new JDockerContainerRequest(null, config, scale));
         return this;
     }
 
     public DeploymentBuilder addRequest(ContainerConfig config) {
-        this.requests.add(ContainerRequest.of(config, 1));
+        this.requests.add(new JDockerContainerRequest(null, config, 1));
         return this;
     }
 

@@ -25,19 +25,17 @@ import java.util.Objects;
 /**
  * Created by atsticks on 20.01.16.
  */
-public final class ContainerRequest {
-    private Deployment deployment;
+public final class JDockerContainerRequest {
     private int scale;
+    Deployment deployment;
     private ContainerConfig containerConfig;
 
-    ContainerRequest(ContainerConfig config) {
-        this.deployment = Objects.requireNonNull(deployment);
-        this.scale =1;
+    JDockerContainerRequest(Deployment deployment, ContainerConfig containerConfig) {
+        this(deployment, containerConfig, 1);
     }
 
-    ContainerRequest(Deployment deployment, ContainerConfig config, int scale) {
-        this.deployment = Objects.requireNonNull(deployment);
-        this.containerConfig = Objects.requireNonNull(config);
+    JDockerContainerRequest(Deployment deployment, ContainerConfig containerConfig, int scale) {
+        this.containerConfig = Objects.requireNonNull(containerConfig);
         if (scale < 0) {
             throw new IllegalArgumentException("Scale must be >= 0.");
         }
@@ -45,7 +43,7 @@ public final class ContainerRequest {
     }
 
     public Deployment getDeployment() {
-        return deployment;
+        return this.deployment;
     }
 
     public int getScale() {

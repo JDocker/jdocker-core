@@ -1,1 +1,1 @@
-io.github.jdocker.networking.calico.CalicoNetworkingSpi
+io.github.jdocker.internal.calico.CalicoNetworkingSpi

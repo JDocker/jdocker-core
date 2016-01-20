@@ -20,8 +20,8 @@ package io.github.jdocker.spi;
 
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
-import io.github.jdocker.DockerMachine;
-import io.github.jdocker.deployment.ContainerRequest;
+import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.deployment.JDockerContainerRequest;
 import io.github.jdocker.deployment.Deployment;
 
 import java.util.Collection;
@@ -37,7 +37,7 @@ public interface DeployerSpi {
      * @param request the request deployment, not null.
      * @return the eligible nodes.
      */
-    Collection<DockerMachine> getEligibleNodes(ContainerRequest request);
+    Collection<JDockerMachine> getEligibleNodes(JDockerContainerRequest request);
 
     /**
      * Deploy the deployment.
@@ -54,7 +54,7 @@ public interface DeployerSpi {
      */
     void ensureScale(Deployment deployment);
 
-    ContainerCreation deployDirect(DockerMachine node, ContainerConfig config);
+    ContainerCreation deployDirect(JDockerMachine node, ContainerConfig config);
 
     /**
      * Directly deploy to a specific docker instance.
@@ -62,6 +62,6 @@ public interface DeployerSpi {
      * @param deployment the target deployment
      * @return the creational contexts of the newly created node.
      */
-    List<ContainerCreation> deployDirect(DockerMachine node, Deployment deployment);
+    List<ContainerCreation> deployDirect(JDockerMachine node, Deployment deployment);
 
 }

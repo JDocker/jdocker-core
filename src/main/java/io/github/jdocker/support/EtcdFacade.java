@@ -2,6 +2,7 @@ package io.github.jdocker.support;
 
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
+import io.github.jdocker.JDockerMachine;
 import io.github.jdocker.common.Executor;
 
 import java.util.logging.Logger;
@@ -9,7 +10,7 @@ import java.util.logging.Logger;
 /**
  * Created by atsticks on 19.01.16.
  */
-public class EtcdFacade {
+public final class EtcdFacade {
 
     private static final Logger LOG = Logger.getLogger(EtcdFacade.class.getName());
     private EtcdFacade(){}
@@ -23,12 +24,12 @@ public class EtcdFacade {
                 "mv etcd-v2.2.4-linux-amd64 etcd");
     }
 
-    public static String runEtc(DockerHost docker){
+    public static String runEtc(JDockerMachine docker){
         ContainerConfig container = ContainerConfig.builder()
                 .image("quay.io/coreos/etcd:v2.2.4")
                 .hostname("etcd").build();
         try {
-            ContainerCreation cr = docker.getClient().createContainer(container);
+            ContainerCreation cr = docker.createDockerClient().createContainer(container);
             for(String w:cr.getWarnings()){
                 LOG.warning(w);
             }

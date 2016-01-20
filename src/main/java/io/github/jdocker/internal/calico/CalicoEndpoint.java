@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-//package io.github.jdocker.networking.calico;
+//package io.github.jdocker.internal.calico;
 //
 //import java.util.*;
 //

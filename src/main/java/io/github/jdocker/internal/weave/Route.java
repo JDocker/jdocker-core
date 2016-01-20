@@ -16,23 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker;
-
+package io.github.jdocker.internal.weave;
 
 /**
- * Created by atsticks on 12.01.16.
+ * Created by atsticks on 17.01.16.
  */
-public class DockerMachineException extends RuntimeException{
+public class Route {
+    private String dest;
+    private String via;
 
-    public DockerMachineException(Throwable cause) {
-        super(cause);
+    public String getDest() {
+        return dest;
     }
 
-    public DockerMachineException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
-
-    public DockerMachineException(String message) {
-        super(message);
+    public String getVia() {
+        return via;
     }
 }

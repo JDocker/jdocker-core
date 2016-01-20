@@ -1,1 +1,1 @@
-io.github.jdocker.deployment.internal.DefaultDeployerSpi
+io.github.jdocker.internal.DefaultDeployerSpi

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.networking.weave;
+package io.github.jdocker.internal.weave;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.networking.weave;
+package io.github.jdocker.internal.weave;
 
 import io.github.jdocker.common.Executor;
-import io.github.jdocker.DockerMachine;
+import io.github.jdocker.JDockerMachine;
 import io.github.jdocker.MachineConfig;
 
 import java.util.Arrays;
@@ -160,14 +160,14 @@ public class WeaveNetworking {
     }
 
     // --init-peer-count 3
-    public static String clusterMachines(DockerMachine... machines){
+    public static String clusterMachines(JDockerMachine... machines){
         return clusterMachines(Arrays.asList(machines));
     }
 
-    public static String clusterMachines(Collection<DockerMachine> machines) {
-        DockerMachine first = null;
+    public static String clusterMachines(Collection<JDockerMachine> machines) {
+        JDockerMachine first = null;
         StringBuilder b = new StringBuilder();
-        for(DockerMachine m:machines) {
+        for(JDockerMachine m:machines) {
             if(first==null) {
                 b.append(Executor.execute("eval \"$(docker-machine "+m.getName()+")\"",
                         "weave launch --init-peer-count " + machines.size()));
@@ -183,7 +183,7 @@ public class WeaveNetworking {
     }
 
 
-    public static String expose(DockerMachine machine, String... networks){
+    public static String expose(JDockerMachine machine, String... networks){
         StringBuilder b = new StringBuilder("weave expose ");
         for(String net:networks){
             net = net.trim();

@@ -16,20 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.networking.weave;
+package io.github.jdocker;
+
+import java.net.URI;
+import java.util.Map;
 
 /**
- * Created by atsticks on 17.01.16.
+ * Interface representing an unpooled host.
  */
-public class Route {
-    private String dest;
-    private String via;
+public interface UnpooledMachine {
 
-    public String getDest() {
-        return dest;
-    }
+    String getName();
 
-    public String getVia() {
-        return via;
-    }
+    /**
+     * Get the docker-machine^s URL.
+     * @return
+     */
+    URI getURL();
+
+    /**
+     * Pings the machine.
+     */
+    boolean ping();
+
+    /**
+     * Properties, e.g. for accessing the machine with ssh or similar.
+     * @return the hsot properties, not null.
+     */
+    Map<String,String> getProperties();
+
 }
