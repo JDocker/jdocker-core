@@ -16,31 +16,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.internal;
+package io.github.jdocker.events;
 
 import com.spotify.docker.client.messages.ContainerInfo;
-import io.github.jdocker.JDockerContainer;
+
+import java.util.Objects;
 
 /**
- * Created by atsticks on 19.01.16.
+ * DeploymentRequest, distributed as payload within a JDockerEvent.
  */
-public class DefaultContainer implements JDockerContainer {
+public final class UndeploymentRequest {
+    private String swarmId;
+    private String containerId;
+    private ContainerInfo containerInfo;
 
-    private ContainerInfo container;
-    private String dockerNode;
+    UndeploymentRequest(String containerId, String swarmId) {
+        this.containerId = Objects.requireNonNull(containerId);
+        this.swarmId = Objects.requireNonNull(swarmId);
+    }
 
-    public DefaultContainer(ContainerInfo containerInfo, String dockerNode) {
-        this.container = containerInfo;
-        this.dockerNode = dockerNode;
+    public String getContainerId() {
+        return containerId;
+    }
+
+    public String getSwarmId(){
+        return swarmId;
     }
 
     @Override
-    public ContainerInfo getContainerInfo() {
-        return container;
-    }
-
-    @Override
-    public String getHostName() {
-        return dockerNode;
+    public String toString() {
+        return "ContainerRequest{" +
+                "containerId=" + containerId +
+                ", swarmId=" + swarmId +
+                ", containerInfo=" + containerInfo +
+                '}';
     }
 }

@@ -16,25 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.deployment;
-
-import io.github.jdocker.JDockerMachine;
-
-import java.util.Collection;
+package io.github.jdocker;
 
 /**
- * Class that defines which docker nodes can be used for this deployment.
+ * The possible strategies currently supported by swarm.
  */
-public interface DockerMachineElector {
-
-    /**
-     * Evaluates the possible deployment targets. This does a selection from all known nodes in the system that
-     * match the deployment's configuration. It is the responsibility of the {@link DockerMachineSelector} to
-     * effectively define the effective deployment targets called for deployment.
-     * @param request the deployment, not null
-     * @return the collection of eligible nodes, never null.
-     */
-    Collection<JDockerMachine> evaluateTargetNodes(JDockerContainerRequest request);
-
-
+public enum SwarmStrategy {
+    /** Under the spread strategy, Swarm optimizes for the node with the least number of containers. */
+    spread,
+    /** The binpack strategy causes Swarm to optimize for the node which is most packed. */
+    binpack,
+    /** Just uses a random selection algorithm. */
+    random
 }

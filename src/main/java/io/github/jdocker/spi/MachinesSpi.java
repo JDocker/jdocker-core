@@ -18,7 +18,7 @@
  */
 package io.github.jdocker.spi;
 
-import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.JDockerHost;
 import io.github.jdocker.MachineConfig;
 
 import java.util.List;
@@ -39,14 +39,14 @@ public interface MachinesSpi {
      * io.github.jdocker.machine state for every io.github.jdocker.machine name identified.
      * @return a list of io.github.jdocker.machine, refreshed.
      */
-    List<JDockerMachine> getKnownMachines();
+    List<JDockerHost> getKnownMachines();
 
     /**
      * Access a machine by name.
      * @param name the io.github.jdocker.machine name , not null.
      * @return the io.github.jdocker.machine instance, or null.
      */
-    JDockerMachine lookupMachine(String name);
+    JDockerHost lookupMachine(String name);
 
     /**
      * Access a machine configuration by name.
@@ -83,5 +83,5 @@ public interface MachinesSpi {
      * @param machineConfig the machine config, not null.
      * @return the new machine, check its status if all is OK.
      */
-    JDockerMachine createMachine(MachineConfig machineConfig);
+    JDockerHost createMachine(MachineConfig machineConfig);
 }

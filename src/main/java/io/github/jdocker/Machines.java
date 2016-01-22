@@ -28,6 +28,7 @@ import io.github.jdocker.spi.ServiceContextManager;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -42,27 +43,32 @@ public final class Machines {
 
     private Machines(){}
 
-    public static JDockerMachine addDocker(String name, DockerClient client, String... labels){
+    public static JDockerHost addDockerHost(String name, DockerClient client, String... labels){
         return SPI.addDocker(name, client, labels);
     }
 
-    public static JDockerMachine getDocker(String name){
+    public static JDockerHost getDockerHost(String name){
         return SPI.getDocker(name);
     }
 
-    public static Collection<JDockerMachine> getDockers(){
-        return SPI.getDockerMachines();
+    /**
+     * Get a list of all machines currently known. This will perform multiple requests to evaluate the
+     * io.github.jdocker.machine state for every io.github.jdocker.machine name identified.
+     * @return a list of io.github.jdocker.machine, refreshed.
+     */
+    public static List<JDockerHost> getDockerHosts(){
+        return MACHINES_SPI.getKnownMachines();
     }
 
-    public static Collection<JDockerMachine> getDockers(Predicate<JDockerMachine> predicate){
-        return SPI.getDockerMachines(predicate);
+    /**
+     * This calls maps to {@code docker-io.github.jdocker.machine ls} listing all known machines for a given docker root.
+     * @return a list with all io.github.jdocker.machine names, never null.
+     */
+    public static List<String> getDockerHostNames(){
+        return MACHINES_SPI.getMachineNames();
     }
 
-    public static Set<String> getDockerNames(){
-        return SPI.getDockerHostNames();
-    }
-
-    public static JDockerMachine removeDocker(String name){
+    public static JDockerHost removeDockerHost(String name){
         return SPI.removeDockerHost(name);
     }
 
@@ -70,7 +76,7 @@ public final class Machines {
      * Add an ssh-accessible machine. to the pool of machines.
      * @param unpooledMachine the machine, not null
      */
-    public static void addMachine(UnpooledMachine unpooledMachine){
+    public static void addUnpooledMachine(UnpooledMachine unpooledMachine){
         SPI.addHost(unpooledMachine);
     }
 
@@ -78,7 +84,7 @@ public final class Machines {
      * Get a list with all currently known, but not used machines.
      * @return all unused machines.
      */
-    public static Collection<UnpooledMachine> getMachines(){
+    public static Collection<UnpooledMachine> getUnpooledMachines(){
         return SPI.getHosts();
     }
 
@@ -87,25 +93,8 @@ public final class Machines {
      * @param address the address, or resolvable dns name, not null.
      * @return the machine instance, or null, if the machine is not registered.
      */
-    public static UnpooledMachine getMachine(String address){
+    public static UnpooledMachine getUnpooledMachine(String address){
         return SPI.getHost(address);
-    }
-
-    /**
-     * This calls maps to {@code docker-io.github.jdocker.machine ls} listing all known machines for a given docker root.
-     * @return a list with all io.github.jdocker.machine names, never null.
-     */
-    public static List<String> getMachineNames(){
-        return MACHINES_SPI.getMachineNames();
-    }
-
-    /**
-     * Get a list of all machines currently known. This will perform multiple requests to evaluate the
-     * io.github.jdocker.machine state for every io.github.jdocker.machine name identified.
-     * @return a list of io.github.jdocker.machine, refreshed.
-     */
-    public static List<JDockerMachine> getKnownMachines(){
-        return MACHINES_SPI.getKnownMachines();
     }
 
     /**
@@ -113,7 +102,7 @@ public final class Machines {
      * @param name the io.github.jdocker.machine name , not null.
      * @return the io.github.jdocker.machine instance, or null.
      */
-    public static JDockerMachine lookupMachine(String name){
+    public static JDockerHost lookupDockerHost(String name){
         return MACHINES_SPI.lookupMachine(name);
     }
 
@@ -127,44 +116,53 @@ public final class Machines {
     }
 
     /**
+     * Inspect a docker-machine's details.
+     * @return the property mapped JSON tree response.
+     */
+    public static Map<String,String> inspect(JDockerHost machine){
+        // TODO delegate to SPI
+        return null;
+    }
+
+    /**
      * Restarts a docker-machine.
      */
-    public static void restart(JDockerMachine machine){
+    public static void restart(JDockerHost machine){
         // TODO delegate to SPI
     }
 
     /**
      * Regenerates the TLS certificates.
      */
-    public static void regenerateCerts(JDockerMachine machine){
+    public static void regenerateCerts(JDockerHost machine){
         // TODO delegate to SPI
     }
 
     /**
      * Removes a docker-machine.
      */
-    public static void remove(JDockerMachine machine){
+    public static void remove(JDockerHost machine){
         // TODO delegate to SPI
     }
 
     /**
      * Removes the docker-machine completely.
      */
-    public static void kill(JDockerMachine machine){
+    public static void kill(JDockerHost machine){
         // TODO delegate to SPI
     }
 
     /**
      * Starts the docker-machine.
      */
-    public static void start(JDockerMachine machine){
+    public static void start(JDockerHost machine){
         // TODO delegate to SPI
     }
 
     /**
      * Stops the docker-machine.
      */
-    public static void stop(JDockerMachine machine){
+    public static void stop(JDockerHost machine){
         // TODO delegate to SPI
     }
 
@@ -172,7 +170,7 @@ public final class Machines {
      * Get the docker-machine^s URL.
      * @return
      */
-    public static URI getURL(JDockerMachine machine){
+    public static URI getURL(JDockerHost machine){
         // TODO delegate to SPI
         return null;
     }
@@ -180,7 +178,7 @@ public final class Machines {
     /**
      * Upgrades the docker-machine to the latest version of DockerNodeRegistry.
      */
-    public static void upgrade(JDockerMachine machine){
+    public static void upgrade(JDockerHost machine){
 // TODO delegate to SPI
     }
 
@@ -188,7 +186,7 @@ public final class Machines {
      * Creates a client for accessing the docker host.
      * @return a client for accessing, not null
      */
-    public static DockerClient createDockerClient(JDockerMachine machine){
+    public static DockerClient createDockerClient(JDockerHost machine){
         // TODO delegate to SPI
         return null;
     }
@@ -196,7 +194,7 @@ public final class Machines {
     /**
      * Creates the machine and configures it for being eligible as deployment target.
      */
-    public static void createMachine(JDockerMachine machine){
+    public static void createMachine(JDockerHost machine){
         createMachine(machine.getConfiguration());
     }
 
@@ -235,11 +233,11 @@ public final class Machines {
      * @param machineConfig the machine config, not null.
      * @return the new machine, check its status if all is OK.
      */
-    public static JDockerMachine createMachine(MachineConfig machineConfig) {
+    public static JDockerHost createMachine(MachineConfig machineConfig) {
         return MACHINES_SPI.createMachine(machineConfig);
     }
 
-    public static MachineStatus getMachineStatus(JDockerMachine machine) {
+    public static MachineStatus getMachineStatus(JDockerHost machine) {
         // TODO delegate to SPI
         return MachineStatus.Unknown;
     }

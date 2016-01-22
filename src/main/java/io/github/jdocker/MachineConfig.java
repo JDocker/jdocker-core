@@ -26,7 +26,7 @@ import java.net.URI;
 /**
  * Simple Model of a docker-machine managed by docker docker-machine.
  */
-public class MachineConfig {
+public final class MachineConfig {
     private static final Logger LOG = Logger.getLogger(MachineConfig.class.getName());
 
     /** The docker machine's name. */
@@ -53,23 +53,8 @@ public class MachineConfig {
     /** Define environment variables for the engine. Maps to
      * {@code --engine-env [--engine-env option --engine-env option]}. */
     private Set<String> machineEnvironment = new HashSet<>();
-    /** Configure MachineConfig with Swarm, maps to {@code --swarm }. */
-    private boolean configureMachineWithSwarm = false;
-    /** Define the swarm DockerNodeRegistry image to be used, maps to {@code --swarm-image "swarm:latest"}. */
-    private String swarmImage = "swarm:latest";
-    /** Configure io.github.jdocker.machine as swarm-master, maps to {@code  --swarm-master }s. */
-    private boolean swarmMaster;
-    /** Discovery service to use with Swarm, maps to {@code --swarm-discovery}. */
-    private String swarmDiscoveryToken;
-    /** Configure the default scheduling strategy for swarm, amps to {@code --swarm-strategy "spread" }. */
-    private String swarmStrategy;
-    /** Define swarm options for swarm. Maps to
-     * {@code --swarm-opt [--swarm-opt option --swarm-opt option]}. */
-    private Set<String> swarmEnvironment = new HashSet<>();
-    /** ip/socket to listen for a swarn master, maps to {@code --swarm-host "tcp://0.0.0.0:3376"} */
-    private URI swarmHostURI;
-    /** Address to advertise for swarm, maps to {@code ---swarm-addr "tcp://0.0.0.0:3376"} */
-    private URI swarmAdvertizeURI;
+
+    private SwarmConfig swarmConfig;
 
     MachineConfig(MachineConfigBuilder builder) {
         this.name = Objects.requireNonNull(builder.name);
@@ -107,38 +92,11 @@ public class MachineConfig {
         return Collections.unmodifiableSet(machineEnvironment);
     }
 
-    public boolean isConfiguredWithSwarm() {
-        return configureMachineWithSwarm;
-    }
-
-    public String getSwarmImage() {
-        return swarmImage;
-    }
-
-    public boolean isSwarmMaster() {
-        return swarmMaster;
-    }
-
-    public String getSwarmDiscoveryToken() {
-        return swarmDiscoveryToken;
-    }
-
-    public String getSwarmStrategy() {
-        return swarmStrategy;
-    }
-
-    public Set<String> getSwarmEnvironment() {
-        return Collections.unmodifiableSet(swarmEnvironment);
-    }
-
-    public URI getSwarmHostURI() {
-        return swarmHostURI;
-    }
-
-    public URI getSwarmAdvertizeURI() {
-        return swarmAdvertizeURI;
-    }
-
+    /**
+     * Access the swarm config.
+     * @return the swarm config, or null (default).
+     */
+    public SwarmConfig getSwarmConfig(){ return swarmConfig; }
 
     @Override
     public boolean equals(Object o) {

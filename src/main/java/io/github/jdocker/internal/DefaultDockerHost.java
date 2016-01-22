@@ -21,11 +21,11 @@ package io.github.jdocker.internal;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerClient;
-import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.JDockerHost;
 import io.github.jdocker.Machines;
 import io.github.jdocker.common.Executor;
 import io.github.jdocker.common.JSONMapper;
-import io.github.jdocker.JDockerMachineException;
+import io.github.jdocker.JDockerException;
 import io.github.jdocker.MachineConfig;
 import io.github.jdocker.MachineStatus;
 
@@ -42,9 +42,9 @@ import java.util.logging.Logger;
 /**
  * Created by atsticks on 17.01.16.
  */
-public final class DefaultDockerMachine implements JDockerMachine {
+public final class DefaultDockerHost implements JDockerHost {
 
-    private static final Logger LOG = Logger.getLogger(DefaultDockerMachine.class.getName());
+    private static final Logger LOG = Logger.getLogger(DefaultDockerHost.class.getName());
 
     private DockerClient client;
     /** The current status. */
@@ -70,7 +70,7 @@ public final class DefaultDockerMachine implements JDockerMachine {
     /** The mapper for reading the inspection JSON. */
     private JSONMapper jsonMapper = new JSONMapper();
 
-    public DefaultDockerMachine(MachineConfig config){
+    public DefaultDockerHost(MachineConfig config){
         this.configuration = config;
         refresh();
     }
@@ -252,7 +252,7 @@ public final class DefaultDockerMachine implements JDockerMachine {
         String result = Executor.execute("docker-docker-machine restart " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new JDockerMachineException("Failed to restart docker-machine " + getName() + " -> " + result);
+            throw new JDockerException("Failed to restart docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Running;
     }
@@ -271,7 +271,7 @@ public final class DefaultDockerMachine implements JDockerMachine {
         String result = Executor.execute("docker-docker-machine remove " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new JDockerMachineException("Failed to kill docker-machine " + getName() + " -> " + result);
+            throw new JDockerException("Failed to kill docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.NotExisting;
     }
@@ -283,7 +283,7 @@ public final class DefaultDockerMachine implements JDockerMachine {
         String result = Executor.execute("docker-docker-machine kill " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new JDockerMachineException("Failed to kill docker-machine " + getName() + " -> " + result);
+            throw new JDockerException("Failed to kill docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Stopped;
     }
@@ -295,7 +295,7 @@ public final class DefaultDockerMachine implements JDockerMachine {
         String result = Executor.execute("docker-docker-machine start " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new JDockerMachineException("Failed to start docker-machine " + getName() + " -> " + result);
+            throw new JDockerException("Failed to start docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Running;
     }
@@ -307,7 +307,7 @@ public final class DefaultDockerMachine implements JDockerMachine {
         String result = Executor.execute("docker-docker-machine stop " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new JDockerMachineException("Failed to stop docker-machine " + getName() + " -> " + result);
+            throw new JDockerException("Failed to stop docker-machine " + getName() + " -> " + result);
         }
         this.status = MachineStatus.Stopped;
     }
@@ -316,7 +316,7 @@ public final class DefaultDockerMachine implements JDockerMachine {
      * Get the docker-machine^s URL.
      * @return
      */
-    public URI getURL(){
+    public URI getURI(){
         if(url==null){
             return refreshURL();
         }
@@ -354,7 +354,7 @@ public final class DefaultDockerMachine implements JDockerMachine {
         String result = Executor.execute("docker-machine upgrade " + getName());
         if(!result.isEmpty()){
             refreshStatus();
-            throw new JDockerMachineException("Failed to upgrade docker-machine " + getName() + " -> " + result);
+            throw new JDockerException("Failed to upgrade docker-machine " + getName() + " -> " + result);
         }
     }
 
@@ -376,7 +376,7 @@ public final class DefaultDockerMachine implements JDockerMachine {
                                     new File(machineData.get("HostOptions.AuthOptions.CaCertPath")).toPath())
                             .clientCertPath(new File(machineData.get("HostOptions.AuthOptions.ClientCertPath")).toPath())
                             .clientKeyPath(new File(machineData.get("HostOptions.AuthOptions.ClientKeyPath")).toPath()).build().get())
-                    .uri(getURL()).build();
+                    .uri(getURI()).build();
         }
         catch(Exception e){
             throw new IllegalStateException("Failed to create Docker Client", e);
@@ -387,9 +387,9 @@ public final class DefaultDockerMachine implements JDockerMachine {
      * Registers this machine into the global shared Docker repository accessible from
      * {@link Machines}.
      */
-    public JDockerMachine registerMachineAsDockerNode(String...labels){
+    public JDockerHost registerMachineAsDockerNode(String...labels){
         try {
-            return Machines.addDocker(getName(), createDockerClient(), labels);
+            return Machines.addDockerHost(getName(), createDockerClient(), labels);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to create DockerClient", e);
         }

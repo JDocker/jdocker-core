@@ -32,7 +32,7 @@ public interface UnpooledMachine {
      * Get the docker-machine^s URL.
      * @return
      */
-    URI getURL();
+    URI getURI();
 
     /**
      * Pings the machine.

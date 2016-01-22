@@ -19,7 +19,7 @@
 package io.github.jdocker.internal;
 
 import io.github.jdocker.common.Executor;
-import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.JDockerHost;
 import io.github.jdocker.MachineConfig;
 import io.github.jdocker.MachineStatus;
 import io.github.jdocker.spi.MachinesSpi;
@@ -43,7 +43,7 @@ public class DefaultMachinesSpi implements MachinesSpi {
 
     private static final Map<String,MachineConfig> MACHINE_CONFIGS = new ConcurrentHashMap<>();
 
-    private static final Map<String,JDockerMachine> MACHINES = new ConcurrentHashMap<>();
+    private static final Map<String,JDockerHost> MACHINES = new ConcurrentHashMap<>();
 
     /** Singleton. */
     private DefaultMachinesSpi(){}
@@ -88,11 +88,11 @@ public class DefaultMachinesSpi implements MachinesSpi {
      * @return a list of io.github.jdocker.machine, refreshed.
      */
     @Override
-    public List<JDockerMachine> getKnownMachines(){
-        List<JDockerMachine> list = new ArrayList<>();
+    public List<JDockerHost> getKnownMachines(){
+        List<JDockerHost> list = new ArrayList<>();
         List<String> names = getMachineNames();
         for(String name: names){
-            JDockerMachine machine = lookupMachine(name);
+            JDockerHost machine = lookupMachine(name);
             if(machine!=null){
                 list.add(machine);
             }
@@ -106,15 +106,15 @@ public class DefaultMachinesSpi implements MachinesSpi {
      * @return the io.github.jdocker.machine instance, or null.
      */
     @Override
-    public JDockerMachine lookupMachine(String name){
-        JDockerMachine machine = MACHINES.get(name);
+    public JDockerHost lookupMachine(String name){
+        JDockerHost machine = MACHINES.get(name);
         if(machine==null){
             MachineConfig config = MACHINE_CONFIGS.get(name);
             if(config!=null) {
-                machine = new DefaultDockerMachine(config);
+                machine = new DefaultDockerHost(config);
             }
             else{
-                machine = new DefaultDockerMachine(name);
+                machine = new DefaultDockerHost(name);
                 machine.refresh();
             }
             MACHINES.put(name, machine);
@@ -140,8 +140,8 @@ public class DefaultMachinesSpi implements MachinesSpi {
      */
     @Override
     public void stopRunning(){
-        List<JDockerMachine> machines = getKnownMachines();
-        for(JDockerMachine machine:machines){
+        List<JDockerHost> machines = getKnownMachines();
+        for(JDockerHost machine:machines){
             if(machine.getMachineStatus()==MachineStatus.Running){
                 machine.stop();
             }
@@ -154,8 +154,8 @@ public class DefaultMachinesSpi implements MachinesSpi {
      */
     @Override
     public void stopRunning(String expression){
-        List<JDockerMachine> machines = getKnownMachines();
-        for(JDockerMachine machine:machines){
+        List<JDockerHost> machines = getKnownMachines();
+        for(JDockerHost machine:machines){
             if(machine.getMachineStatus()==MachineStatus.Running && machine.getName().matches(expression)){
                 machine.stop();
             }
@@ -167,8 +167,8 @@ public class DefaultMachinesSpi implements MachinesSpi {
      */
     @Override
     public void startNotRunning(){
-        List<JDockerMachine> machines = getKnownMachines();
-        for(JDockerMachine machine:machines){
+        List<JDockerHost> machines = getKnownMachines();
+        for(JDockerHost machine:machines){
             if(machine.getMachineStatus()!=MachineStatus.Running){
                 machine.start();
             }
@@ -181,8 +181,8 @@ public class DefaultMachinesSpi implements MachinesSpi {
      */
     @Override
     public void startNotRunning(String expression){
-        List<JDockerMachine> machines = getKnownMachines();
-        for(JDockerMachine machine:machines){
+        List<JDockerHost> machines = getKnownMachines();
+        for(JDockerHost machine:machines){
             if(machine.getMachineStatus()!=MachineStatus.Running && machine.getName().matches(expression)){
                 machine.start();
             }
@@ -190,8 +190,8 @@ public class DefaultMachinesSpi implements MachinesSpi {
     }
 
     @Override
-    public JDockerMachine createMachine(MachineConfig machineConfig) {
-        JDockerMachine machine = MACHINES.get(machineConfig.getName());
+    public JDockerHost createMachine(MachineConfig machineConfig) {
+        JDockerHost machine = MACHINES.get(machineConfig.getName());
         if(machine!=null){
             LOG.warning("Cannot create machine: " +machineConfig.getName() + ": already exists!");
             return machine;
@@ -200,7 +200,7 @@ public class DefaultMachinesSpi implements MachinesSpi {
         if(config!=null && config!=machineConfig){
             throw new IllegalStateException("Config already present for " + machineConfig.getName());
         }
-        machine = new DefaultDockerMachine(machineConfig);
+        machine = new DefaultDockerHost(machineConfig);
         MACHINE_CONFIGS.put(machineConfig.getName(), machineConfig);
         MACHINES.put(machine.getName(), machine);
         machine.createMachine();

@@ -20,7 +20,7 @@ package io.github.jdocker.spi;
 
 import com.google.common.base.Predicate;
 import com.spotify.docker.client.DockerClient;
-import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.JDockerHost;
 import io.github.jdocker.UnpooledMachine;
 
 import java.util.Collection;
@@ -31,19 +31,19 @@ import java.util.Set;
  */
 public interface HostRegistrySpi {
 
-    JDockerMachine addDocker(String name, DockerClient client, String... labels);
+    JDockerHost addDocker(String name, DockerClient client, String... labels);
 
-    JDockerMachine getDocker(String name);
+    JDockerHost getDocker(String name);
 
-    Collection<JDockerMachine> getDockerMachines(Predicate<JDockerMachine> predicate);
+    Collection<JDockerHost> getDockerMachines(Predicate<JDockerHost> predicate);
 
-    Collection<JDockerMachine> getDockerMachines();
+    Collection<JDockerHost> getDockerMachines();
 
     Set<String> getDockerHostNames();
 
-    JDockerMachine removeDockerHost(String name);
+    JDockerHost removeDockerHost(String name);
 
-    void removeDockerHosts(Predicate<JDockerMachine> predicate);
+    void removeDockerHosts(Predicate<JDockerHost> predicate);
 
     /**
      * Add an ssh-accessible machine. to the pool of machines.

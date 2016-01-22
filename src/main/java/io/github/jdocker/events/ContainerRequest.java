@@ -16,34 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.deployment;
+package io.github.jdocker.events;
 
 import com.spotify.docker.client.messages.ContainerConfig;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
- * Created by atsticks on 20.01.16.
+ * DeploymentRequest, distributed as payload within a JDockerEvent.
  */
-public final class JDockerContainerRequest {
+public final class ContainerRequest {
+    private String swarmId;
     private int scale;
-    Deployment deployment;
     private ContainerConfig containerConfig;
+    private Map<String,String> environment = new HashMap<>();
 
-    JDockerContainerRequest(Deployment deployment, ContainerConfig containerConfig) {
-        this(deployment, containerConfig, 1);
-    }
-
-    JDockerContainerRequest(Deployment deployment, ContainerConfig containerConfig, int scale) {
+    ContainerRequest(ContainerConfig containerConfig, int scale, String swarmId, Map<String,String> environment) {
         this.containerConfig = Objects.requireNonNull(containerConfig);
         if (scale < 0) {
             throw new IllegalArgumentException("Scale must be >= 0.");
         }
         this.scale = scale;
+        this.environment.putAll(environment);
+        this.swarmId = swarmId;
     }
 
-    public Deployment getDeployment() {
-        return this.deployment;
+    public String getSwarmId(){
+        return swarmId;
     }
 
     public int getScale() {
@@ -54,11 +55,17 @@ public final class JDockerContainerRequest {
         return containerConfig;
     }
 
+    public Map<String,String> getEnvironment(){
+        return environment;
+    }
+
     @Override
     public String toString() {
-        return "ContainerRequest{" +
+        return "DeploymentRequest{" +
                 "scale=" + scale +
-                ", containerConfig=" + containerConfig +
+                ", container=" + containerConfig +
+                ", swarmId=" + swarmId +
+                ", environment=" + environment +
                 '}';
     }
 }

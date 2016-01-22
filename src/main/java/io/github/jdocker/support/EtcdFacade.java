@@ -2,7 +2,7 @@ package io.github.jdocker.support;
 
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
-import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.JDockerHost;
 import io.github.jdocker.common.Executor;
 
 import java.util.logging.Logger;
@@ -24,7 +24,7 @@ public final class EtcdFacade {
                 "mv etcd-v2.2.4-linux-amd64 etcd");
     }
 
-    public static String runEtc(JDockerMachine docker){
+    public static String runEtc(JDockerHost docker){
         ContainerConfig container = ContainerConfig.builder()
                 .image("quay.io/coreos/etcd:v2.2.4")
                 .hostname("etcd").build();

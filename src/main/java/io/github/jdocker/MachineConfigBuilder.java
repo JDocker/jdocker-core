@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 /**
  * Request that encapsulates the possible parameters to be passed to {@code docker-maschine create <name>}.
  */
-public class MachineConfigBuilder {
+public final class MachineConfigBuilder {
     /** Log used. */
     private static final Logger LOG = Logger.getLogger(MachineConfigBuilder.class.getName());
     /** The machine's name. */

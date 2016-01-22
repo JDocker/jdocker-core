@@ -19,7 +19,7 @@
 package io.github.jdocker.networking;
 
 import com.spotify.docker.client.messages.ContainerInfo;
-import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.JDockerHost;
 import io.github.jdocker.spi.NetworkingIPAMSpi;
 import io.github.jdocker.spi.NetworkingSpi;
 import io.github.jdocker.spi.ServiceContextManager;
@@ -65,7 +65,7 @@ public final class Networking {
      * Installs all needed required to run networking with the given machine.
      * @param machine the target machine, not null.
      */
-    public static void installNetworking(JDockerMachine machine){
+    public static void installNetworking(JDockerHost machine){
         spi.installNetworking(machine);
     }
 
@@ -73,7 +73,7 @@ public final class Networking {
      * Stops networking on a given docker machine.
      * @param machine the machine, not null.
      */
-    public static void stopNetworking(JDockerMachine machine){
+    public static void stopNetworking(JDockerHost machine){
         spi.stopNetworking(machine);
     }
 
@@ -81,7 +81,7 @@ public final class Networking {
      * Starts networking on a given docker machine.
      * @param machine the machine, not null.
      */
-    public static void startNetworking(JDockerMachine machine){
+    public static void startNetworking(JDockerHost machine){
         spi.startNetworking(machine);
     }
 
@@ -203,7 +203,6 @@ public final class Networking {
      */
     public static void addAddressPool(AddressPool pool){
         ipamSpi.addAddressPool(pool);
-
     }
 
     /**

@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package io.github.jdocker;
 
 import com.spotify.docker.client.DockerClient;
@@ -19,7 +37,7 @@ public final class Containers {
 
     public static Collection<JDockerContainer> getContainers(String containerName)   {
         List<JDockerContainer> result = new ArrayList<>();
-        for(JDockerMachine docker: Machines.getDockers()) {
+        for(JDockerHost docker: Machines.getDockerHosts()) {
             DockerClient client = docker.createDockerClient();
             List<com.spotify.docker.client.messages.Container> containers = null;
             try {
@@ -45,7 +63,7 @@ public final class Containers {
 
     public static Collection<JDockerContainer> getExitedContainers()   {
         List<JDockerContainer> result = new ArrayList<>();
-        for(JDockerMachine docker: Machines.getDockers()) {
+        for(JDockerHost docker: Machines.getDockerHosts()) {
             DockerClient client = docker.createDockerClient();
             List<com.spotify.docker.client.messages.Container> containers = null;
             try {
@@ -71,7 +89,7 @@ public final class Containers {
 
     public static Collection<JDockerContainer> getContainersWithLabels(String... labels)   {
         List<JDockerContainer> result = new ArrayList<>();
-        for(JDockerMachine docker: Machines.getDockers()) {
+        for(JDockerHost docker: Machines.getDockerHosts()) {
             DockerClient client = docker.createDockerClient();
             List<com.spotify.docker.client.messages.Container> containers = null;
             try {
@@ -110,7 +128,7 @@ public final class Containers {
 
     public static void removeContainer(JDockerContainer container) {
         try {
-            Machines.getDocker(container.getHostName()).createDockerClient().removeContainer(container.getInstance().id());
+            Machines.getDockerHost(container.getHostName()).createDockerClient().removeContainer(container.getContainerInfo().id());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -118,8 +136,8 @@ public final class Containers {
 
     public static void stopContainer(JDockerContainer container, int secondsBeforeKilling) {
         try {
-            Machines.getDocker(container.getHostName()).createDockerClient().stopContainer(
-                    container.getInstance().id(), secondsBeforeKilling);
+            Machines.getDockerHost(container.getHostName()).createDockerClient().stopContainer(
+                    container.getContainerInfo().id(), secondsBeforeKilling);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -127,8 +145,8 @@ public final class Containers {
 
     public static void startContainer(JDockerContainer container) {
         try {
-            Machines.getDocker(container.getHostName()).createDockerClient().startContainer(
-                    container.getInstance().id());
+            Machines.getDockerHost(container.getHostName()).createDockerClient().startContainer(
+                    container.getContainerInfo().id());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -24,7 +24,7 @@ import com.spotify.docker.client.DockerCertificateException;
 import com.spotify.docker.client.DockerCertificates;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.messages.AuthConfig;
-import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.JDockerHost;
 import io.github.jdocker.UnpooledMachine;
 import io.github.jdocker.MachineConfig;
 import io.github.jdocker.MachineConfigBuilder;
@@ -44,7 +44,7 @@ import java.util.logging.Logger;
 public class DefaultHostRegistrySpi implements HostRegistrySpi {
 
     private static final Logger LOG = Logger.getLogger(DefaultHostRegistrySpi.class.getName());
-    private static final Map<String, JDockerMachine> DOCKERS = new ConcurrentHashMap<>();
+    private static final Map<String, JDockerHost> DOCKERS = new ConcurrentHashMap<>();
     private static final Map<String, UnpooledMachine> UNPOOLED = new ConcurrentHashMap<>();
 
     public DefaultHostRegistrySpi(){
@@ -57,7 +57,7 @@ public class DefaultHostRegistrySpi implements HostRegistrySpi {
                 String[] labels = readLabelForDockerContainer(masterKey, config);
                 DockerClient client = initDockerClient(masterKey, config);
                 MachineConfig mc = MachineConfig.builder(masterKey).build();
-                DOCKERS.put(masterKey, new DefaultDockerMachine(mc));
+                DOCKERS.put(masterKey, new DefaultDockerHost(mc));
                 LOG.info("Registered docker instance: " + masterKey);
             }
         }
@@ -69,9 +69,9 @@ public class DefaultHostRegistrySpi implements HostRegistrySpi {
         }
     }
 
-    private JDockerMachine initMachine(String name, Configuration config) {
+    private JDockerHost initMachine(String name, Configuration config) {
         MachineConfig mConfig = readMachineConfig(config);
-        DefaultDockerMachine m = new DefaultDockerMachine(mConfig);
+        DefaultDockerHost m = new DefaultDockerHost(mConfig);
         return m;
     }
 
@@ -162,22 +162,22 @@ public class DefaultHostRegistrySpi implements HostRegistrySpi {
     }
 
     @Override
-    public JDockerMachine addDocker(String name, DockerClient client, String... labels){
+    public JDockerHost addDocker(String name, DockerClient client, String... labels){
         MachineConfigBuilder builder = new MachineConfigBuilder(name);
-        DefaultDockerMachine dockerHost = new DefaultDockerMachine(builder.build());
+        DefaultDockerHost dockerHost = new DefaultDockerHost(builder.build());
         DefaultHostRegistrySpi.DOCKERS.put(name, dockerHost);
         return dockerHost;
     }
 
     @Override
-    public JDockerMachine getDocker(String name){
+    public JDockerHost getDocker(String name){
         return DefaultHostRegistrySpi.DOCKERS.remove(name);
     }
 
     @Override
-    public Collection<JDockerMachine> getDockerMachines(Predicate<JDockerMachine> predicate) {
-        List<JDockerMachine> found = new ArrayList<>();
-        for(JDockerMachine host:this.getDockerMachines()){
+    public Collection<JDockerHost> getDockerMachines(Predicate<JDockerHost> predicate) {
+        List<JDockerHost> found = new ArrayList<>();
+        for(JDockerHost host:this.getDockerMachines()){
             if(predicate.apply(host)){
                 found.add(host);
             }
@@ -186,7 +186,7 @@ public class DefaultHostRegistrySpi implements HostRegistrySpi {
     }
 
     @Override
-    public Collection<JDockerMachine> getDockerMachines(){
+    public Collection<JDockerHost> getDockerMachines(){
         return DefaultHostRegistrySpi.DOCKERS.values();
     }
 
@@ -196,14 +196,14 @@ public class DefaultHostRegistrySpi implements HostRegistrySpi {
     }
 
     @Override
-    public JDockerMachine removeDockerHost(String name){
+    public JDockerHost removeDockerHost(String name){
         return DefaultHostRegistrySpi.DOCKERS.remove(name);
     }
 
     @Override
-    public void removeDockerHosts(Predicate<JDockerMachine> predicate) {
-        List<JDockerMachine> found = new ArrayList<>();
-        for(JDockerMachine host:this.getDockerMachines()){
+    public void removeDockerHosts(Predicate<JDockerHost> predicate) {
+        List<JDockerHost> found = new ArrayList<>();
+        for(JDockerHost host:this.getDockerMachines()){
             if(predicate.apply(host)){
                 DefaultHostRegistrySpi.DOCKERS.remove(host.getName());
             }

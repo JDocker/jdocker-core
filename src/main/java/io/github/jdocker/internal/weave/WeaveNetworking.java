@@ -19,7 +19,7 @@
 package io.github.jdocker.internal.weave;
 
 import io.github.jdocker.common.Executor;
-import io.github.jdocker.JDockerMachine;
+import io.github.jdocker.JDockerHost;
 import io.github.jdocker.MachineConfig;
 
 import java.util.Arrays;
@@ -160,14 +160,14 @@ public class WeaveNetworking {
     }
 
     // --init-peer-count 3
-    public static String clusterMachines(JDockerMachine... machines){
+    public static String clusterMachines(JDockerHost... machines){
         return clusterMachines(Arrays.asList(machines));
     }
 
-    public static String clusterMachines(Collection<JDockerMachine> machines) {
-        JDockerMachine first = null;
+    public static String clusterMachines(Collection<JDockerHost> machines) {
+        JDockerHost first = null;
         StringBuilder b = new StringBuilder();
-        for(JDockerMachine m:machines) {
+        for(JDockerHost m:machines) {
             if(first==null) {
                 b.append(Executor.execute("eval \"$(docker-machine "+m.getName()+")\"",
                         "weave launch --init-peer-count " + machines.size()));
@@ -176,14 +176,14 @@ public class WeaveNetworking {
             else{
                 b.append(Executor.execute("eval \"$(docker-machine env \""+m.getName()+"\")\"",
                         "weave launch --init-peer-count " + machines.size(),
-                        "weave connect "+first.getURL()));
+                        "weave connect "+first.getURI()));
             }
         }
         return b.toString();
     }
 
 
-    public static String expose(JDockerMachine machine, String... networks){
+    public static String expose(JDockerHost machine, String... networks){
         StringBuilder b = new StringBuilder("weave expose ");
         for(String net:networks){
             net = net.trim();

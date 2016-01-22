@@ -2,9 +2,6 @@ package io.github.jdocker;
 
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.HostConfig;
-import io.github.jdocker.deployment.Deployer;
-import io.github.jdocker.deployment.Deployment;
-import io.github.jdocker.deployment.DeploymentBuilder;
 
 /**
  * Created by atsticks on 15.01.16.
@@ -17,7 +14,7 @@ public class test {
                     .addLabel("test")
                     .setDriver("virtualbox")
                     .build();
-            JDockerMachine machine = Machines.createMachine(machineConfig);
+            JDockerHost machine = Machines.createMachine(machineConfig);
 
 //            // Configure port bindings...
 //            List<PortBinding> containerPorts = new ArrayList<PortBinding>();
@@ -42,7 +39,7 @@ public class test {
             }
         }
 
-        for(JDockerMachine machine:Machines.getKnownMachines()) {
+        for(JDockerHost machine:Machines.getDockerHosts()) {
             if(machine.getSimpleName().startsWith("test")){
                 machine.stop();
                 machine.remove();

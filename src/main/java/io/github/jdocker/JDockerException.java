@@ -16,36 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.deployment;
+package io.github.jdocker;
 
-import com.spotify.docker.client.messages.ContainerConfig;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Created by atsticks on 19.01.16.
+ * JDocker root exception.
  */
-public class DeploymentBuilder {
+public class JDockerException extends RuntimeException{
 
-    List<JDockerContainerRequest> requests = new ArrayList<>();
-
-    public DeploymentBuilder addRequest(JDockerContainerRequest request) {
-        this.requests.add(request);
-        return this;
+    public JDockerException(Throwable cause) {
+        super(cause);
     }
 
-    public DeploymentBuilder addRequest(ContainerConfig config, int scale) {
-        this.requests.add(new JDockerContainerRequest(null, config, scale));
-        return this;
+    public JDockerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public DeploymentBuilder addRequest(ContainerConfig config) {
-        this.requests.add(new JDockerContainerRequest(null, config, 1));
-        return this;
-    }
-
-    public Deployment build(){
-        return new Deployment(this);
+    public JDockerException(String message) {
+        super(message);
     }
 }
