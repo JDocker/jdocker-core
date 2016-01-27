@@ -31,38 +31,38 @@ import java.util.Set;
  */
 public interface HostRegistrySpi {
 
-    JDockerHost addDocker(String name, DockerClient client, String... labels);
+    DockerHost addDocker(String name, DockerClient client, String... labels);
 
-    JDockerHost getDocker(String name);
+    DockerHost getDocker(String name);
 
-    Collection<JDockerHost> getDockerMachines(Predicate<JDockerHost> predicate);
+    Collection<DockerHost> getDockerMachines(Predicate<DockerHost> predicate);
 
-    Collection<JDockerHost> getDockerMachines();
+    Collection<DockerHost> getDockerMachines();
 
     Set<String> getDockerHostNames();
 
-    JDockerHost removeDockerHost(String name);
+    DockerHost removeDockerHost(String name);
 
-    void removeDockerHosts(Predicate<JDockerHost> predicate);
+    void removeDockerHosts(Predicate<DockerHost> predicate);
 
     /**
      * Add an ssh-accessible machine. to the pool of machines.
      * @param host the machine, not null
      */
-    void addHost(UnpooledMachine host);
+    void addHost(Machine host);
 
     /**
      * Get a list with all currently known, but not used machines.
      * @return all unused machines.
      */
-    Collection<UnpooledMachine> getHosts();
+    Collection<Machine> getHosts();
 
     /**
      * Get the machine instance for an ip address.
      * @param address the address, or resolvable dns name, not null.
      * @return the machine instance, or null, if the machine is not registered.
      */
-    UnpooledMachine getHost(String address);
+    Machine getHost(String address);
 
     /**
      * Get current pool size;

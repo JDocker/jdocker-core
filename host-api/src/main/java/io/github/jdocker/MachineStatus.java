@@ -18,31 +18,20 @@
  */
 package io.github.jdocker;
 
-import java.net.URI;
-import java.util.Map;
-
 /**
- * Interface representing an unpooled host.
+ * The possible status of a io.github.jdocker.machine.
  */
-public interface UnpooledMachine {
-
-    String getName();
-
-    /**
-     * Get the docker-machine^s URL.
-     * @return
+public enum MachineStatus {
+    /** The io.github.jdocker.machine has a problem. */
+    Error,
+    /** The io.github.jdocker.machine is not running. */
+    Stopped,
+    /** The io.github.jdocker.machine is running and active. */
+    Running,
+    /** There was some unknown error that prevented the evaluation of the status, e.g. docker-io.github.jdocker.machine is
+     * not installed.
      */
-    URI getURI();
-
-    /**
-     * Pings the machine.
-     */
-    boolean ping();
-
-    /**
-     * Properties, e.g. for accessing the machine with ssh or similar.
-     * @return the hsot properties, not null.
-     */
-    Map<String,String> getProperties();
-
+    Unknown,
+    /** The io.github.jdocker.machine is not known to the current docker-io.github.jdocker.machine setup.*/
+    NotExisting
 }

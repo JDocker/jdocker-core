@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.spi;
+package io.github.jdocker.common;
 
 import java.util.List;
 
