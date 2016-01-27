@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.jdocker</groupId>
+        <artifactId>jdocker-components</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>jdocker-orchestrator</artifactId>
+    <packaging>pom</packaging>
+
+    <properties>
+        <vertx.version>3.2.0</vertx.version>
+        <dockerclient.version>3.5.0</dockerclient.version>
+    </properties>
+
+    <modules>
+        <module>api</module>
+        <module>server</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jdocker-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.spotify</groupId>
+            <artifactId>docker-client</artifactId>
+            <version>${dockerclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-core</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>
