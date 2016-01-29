@@ -46,11 +46,6 @@ under the License.
             <artifactId>metrics-core</artifactId>
             <version>${metrics.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.readytalk</groupId>
-            <artifactId>metrics3-statsd</artifactId>
-            <version>4.1.0</version>
-        </dependency>
     </dependencies>
 
 </project>

@@ -21,6 +21,7 @@ package io.github.jdocker.health;
 import io.github.jdocker.common.*;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Simple health check that pings an endpoint host.
@@ -28,9 +29,14 @@ import java.util.Objects;
 public class EndpoingPingCheck implements HealthCheck{
 
     private Endpoint endpoint;
+    private String id = UUID.randomUUID().toString();
 
     public EndpoingPingCheck(Endpoint endpoint){
         this.endpoint = Objects.requireNonNull(endpoint);
+    }
+
+    public String getId(){
+        return id;
     }
 
     @Override

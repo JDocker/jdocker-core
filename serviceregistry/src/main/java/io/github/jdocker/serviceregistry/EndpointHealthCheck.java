@@ -39,6 +39,10 @@ public class EndpointHealthCheck implements HealthCheck {
     return endpoint;
   }
 
+  public String getId(){
+    return "EndpointHealthCheck:"+endpoint.getHost();
+  }
+
   @Override
   public HealthCheckResult check() {
     // TODO implement endpoint health check.

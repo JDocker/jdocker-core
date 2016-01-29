@@ -47,7 +47,7 @@ public class ServiceRegistry extends AbstractVerticle {
           } catch (URISyntaxException e) {
             e.printStackTrace();
           }
-          Endpoint ep = Endpoint.of(endpointName, endpointURI);
+          Endpoint ep = new Endpoint(endpointName, endpointURI);
         }
       }
     }
@@ -62,6 +62,5 @@ public class ServiceRegistry extends AbstractVerticle {
   public Set<String> getServices() {
     return services.keySet();
   }
-
 
 }
