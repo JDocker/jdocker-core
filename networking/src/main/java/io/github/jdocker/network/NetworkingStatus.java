@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.networking;
+package io.github.jdocker.network;
 
 /**
  * Created by atsticks on 19.01.16.

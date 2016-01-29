@@ -27,20 +27,7 @@ under the License.
         <artifactId>jdocker-components</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>jdocker-agent</artifactId>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <artifactId>jdocker-network</artifactId>
 
     <properties>
         <vertx.version>3.2.0</vertx.version>
@@ -49,23 +36,10 @@ under the License.
 
     <dependencies>
         <dependency>
-            <groupId>io.github.jdocker</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>jdocker-host-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-unit</artifactId>
-            <version>${vertx.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-
 
 </project>

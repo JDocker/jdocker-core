@@ -24,7 +24,7 @@ under the License.
 
     <parent>
         <groupId>io.github.jdocker</groupId>
-        <artifactId>jdocker-core</artifactId>
+        <artifactId>jdocker-components</artifactId>
         <version>0.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>

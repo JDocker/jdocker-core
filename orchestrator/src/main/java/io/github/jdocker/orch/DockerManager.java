@@ -16,180 +16,164 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker;
+package io.github.jdocker.orch;
 
+import io.github.jdocker.*;
+import io.vertx.core.AbstractVerticle;
 
-import com.spotify.docker.client.DockerClient;
-
+import java.net.URI;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Registry managing the docker registries known to this master orchestration node. Basically the DockerManager
- * implementation will sent according events to the docker agents listeningm which will perform the required action and
- * reply as useful.
- *
- * NOTE that in case where the Docker agent is installed within the hosting docker container killing the container will
- * also immedately delete the agent turning the machine into a unmanaged instance immedately. If the agent is installed
- * as a side process on the machine, it is even possible to uninstall and reinstallt or upgrade the docker container
- * running on the machine, so installing the agents along the docker container is the recommended way.
+ * Registry managing the docker instances across the whole cluster. This instance listens to the rgular helath
+ * status updated from the agents as well as the emergency messages, when things break. This functionality shouls also
+ * be exposed to the outside world as REST services.
  */
-public interface DockerManager {
+public final class DockerManager extends AbstractVerticle {
 
-    /**
-     * Add a docker host from an existing docker installation. This will install the docker agent as a container
-     * into the given docker instance.
-     * @param name the new agent's symbolic name, not null.
-     * @param client the configured client
-     * @param labels any additional labels to be set for the agent.
-     * @return the host instance, check the status
-     */
-    DockerHost registerDockerHost(String name, DockerClient client, String... labels);
+    private static final Map<String,DockerAgentStatus> SPI = new ConcurrentHashMap<>();
 
-    /**
-     * Create a new machine with the given machine configuration.
-     * @param machineConfig the machine config, not null.
-     * @return the new machine, check its status if all is OK.
-     */
-    DockerHost hostFromMachineConfig(MachineConfig machineConfig);
+//    public static DockerHost addDockerHost(String name, DockerClient client, String... labels){
+//        return SPI.addDocker(name, client, labels);
+//    }
 
-    /**
-     * Create a new machine on the unmanaged instance given. This will establish a connection to the machine and
-     * install the jdocker agent. The agent will determine if docker is already installed. If not it installs docker.
-     * @param unmanagedInstance the unmanagedInstance instance, not null.
-     * @return the new machine, check its status if all is OK.
-     */
-    DockerHost hostFromMachine(Machine unmanagedInstance);
+    public DockerAgentStatus getDockerHost(String name){
+        return null;
+    }
 
     /**
      * Get a list of all machines currently known. This will perform multiple requests to evaluate the
      * io.github.jdocker.machine state for every io.github.jdocker.machine name identified.
      * @return a list of io.github.jdocker.machine, refreshed.
      */
-    List<DockerHost> getDockerHosts();
+    public Collection<DockerAgentStatus> getDockerHosts(){
+//        return MACHINES_SPI.getKnownMachines();
+        return Collections.emptyList();
+    }
 
-    /**
-     * This calls maps to {@code docker-io.github.jdocker.machine ls} listing all known machines for a given docker root.
-     * @return a list with all io.github.jdocker.machine names, never null.
-     */
-    List<String> getDockerHostNames();
-
-    /**
-     * Removes docker from a given host, turning it into a unmanaged instance.
-     * @param name the host name.
-     * @return the new unmanaged machine instance represting the node.
-     */
-    void removeDockerHost(String name);
-
-    /**
-     * Access a machine by name.
-     * @param name the io.github.jdocker.machine name , not null.
-     * @return the io.github.jdocker.machine instance, or null.
-     */
-    DockerHost lookupDockerHost(String name);
-
-    /**
-     * Access a machine by name.
-     * @param name the io.github.jdocker.machine name , not null.
-     * @return the io.github.jdocker.machine instance, or null.
-     */
-    Machine lookupMachine(String name);
+    public DockerHost removeDockerHost(String name, boolean killIt){
+//        return SPI.removeDockerHost(name);
+        return null;
+    }
 
     /**
      * Add an ssh-accessible machine. to the pool of machines.
      * @param unpooledMachine the machine, not null
      */
-    void addUnmanagedMachine(Machine unpooledMachine);
+    public void addUnpooledMachine(Machine unpooledMachine){
+//        SPI.addHost(unpooledMachine);
+    }
 
     /**
      * Get a list with all currently known, but not used machines.
      * @return all unused machines.
      */
-    Collection<Machine> getUnmanagedMachines();
+    public Collection<Machine> getUnpooledMachines(){
+//        return SPI.getHosts();
+        return Collections.emptyList();
+    }
 
     /**
      * Get the machine instance for an ip address.
      * @param address the address, or resolvable dns name, not null.
      * @return the machine instance, or null, if the machine is not registered.
      */
-    Machine getUnmanagedMachine(String address);
-
-
-
-    /**
-     * Restarts a docker-machine.
-     */
-    void restart(DockerHost machine);
-
-    /**
-     * Regenerates the TLS certificates.
-     */
-    void regenerateCerts(DockerHost machine);
-
-    /**
-     * Removes a docker-machine.
-     */
-    void remove(DockerHost machine);
-
-    /**
-     * Removes the docker-machine completely.
-     */
-    void kill(DockerHost machine);
-
-    /**
-     * Starts the docker-machine.
-     */
-    void start(DockerHost machine);
-
-    /**
-     * Stops the docker-machine.
-     */
-    void stop(DockerHost machine);
-
-    /**
-     * Upgrades the docker-machine to the latest version of DockerNodeRegistry.
-     */
-    void upgrade(DockerHost machine);
+    public static Machine getUnpooledMachine(String address){
+//        return SPI.getHost(address);
+        return null;
+    }
 
     /**
      * Inspect a docker-machine's details.
      * @return the property mapped JSON tree response.
      */
-    Map<String,String> inspect(DockerHost machine);
+    public static Map<String,String> inspect(String name){
+        // TODO delegate to SPI
+        return null;
+    }
 
     /**
-     * Get the underlying Machine configuration.
-     * @return the full Machine configuration.
+     * Restarts a docker-machine.
      */
-    MachineConfig getConfiguration(DockerHost machine);
+    public static void restart(String name){
+        // TODO delegate to SPI
+    }
 
     /**
-     * Creates a client for accessing the docker host using the docker container^s REST API.
-     * @return a client for accessing, not null
+     * Regenerates the TLS certificates.
      */
-    DockerClient createDockerClient(DockerHost machine);
+    public static void regenerateCerts(String name){
+        // TODO delegate to SPI
+    }
 
     /**
-     * Stops all machines known that currently are still running.
+     * Removes a docker-machine.
      */
-    void stopAllDockerServices();
+    public void remove(String name){
+        // TODO delegate to SPI
+    }
 
     /**
-     * Stops all running machines where the given name expression matches.
-     * @param expression the regular expresseion matched against the io.github.jdocker.machine name, not null.
+     * Removes the docker-machine completely.
      */
-    void stopAllDockerServices(String expression);
+    public void kill(String name){
+        // TODO delegate to SPI
+    }
 
     /**
-     * Starts all not running machines.
+     * Starts the docker-machine.
      */
-    void startNotRunningDockers();
+    public void start(DockerHost machine){
+        // TODO delegate to SPI
+    }
 
     /**
-     * Starts all non running io.github.jdocker.machine where the given name expression matches.
-     * @param expression the regular expresseion matched against the io.github.jdocker.machine name, not null.
+     * Stops the docker-machine.
      */
-    void startNotRunningDockers(String expression);
+    public void stop(DockerHost machine){
+        // TODO delegate to SPI
+    }
 
+    /**
+     * Get the docker-machine^s URL.
+     * @return
+     */
+    public URI getURL(DockerHost machine){
+        // TODO delegate to SPI
+        return null;
+    }
+
+    /**
+     * Upgrades the docker-machine to the latest version of DockerNodeRegistry.
+     */
+    public void upgrade(DockerHost machine){
+// TODO delegate to SPI
+    }
+
+//    /**
+//     * Creates a client for accessing the docker host.
+//     * @return a client for accessing, not null
+//     */
+//    public DockerClient createDockerClient(DockerHost machine){
+//        // TODO delegate to SPI
+//        return null;
+//    }
+
+    /**
+     * Create a new machine with the given machine configuration.
+     * @param machineConfig the machine config, not null.
+     * @return the new machine, check its status if all is OK.
+     */
+    public DockerHost createMachine(MachineConfig machineConfig) {
+//        return MACHINES_SPI.createMachine(machineConfig);
+        return null;
+    }
+
+    public MachineStatus getMachineStatus(DockerHost machine) {
+        // TODO delegate to SPI
+        return MachineStatus.Unknown;
+    }
 }

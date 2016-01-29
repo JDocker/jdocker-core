@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.networking;
+package io.github.jdocker.network;
 
 import com.spotify.docker.client.messages.ContainerInfo;
-import io.github.jdocker.JDockerHost;
-import io.github.jdocker.spi.NetworkingIPAMSpi;
-import io.github.jdocker.spi.NetworkingSpi;
-import io.github.jdocker.spi.ServiceContextManager;
+import io.github.jdocker.DockerHost;
+import io.github.jdocker.common.ServiceContextManager;
+import io.github.jdocker.network.spi.NetworkingIPAMSpi;
+import io.github.jdocker.network.spi.NetworkingSpi;
 
 import java.util.Collection;
 import java.util.Set;
@@ -65,7 +65,7 @@ public final class Networking {
      * Installs all needed required to run networking with the given machine.
      * @param machine the target machine, not null.
      */
-    public static void installNetworking(JDockerHost machine){
+    public static void installNetworking(DockerHost machine){
         spi.installNetworking(machine);
     }
 
@@ -73,7 +73,7 @@ public final class Networking {
      * Stops networking on a given docker machine.
      * @param machine the machine, not null.
      */
-    public static void stopNetworking(JDockerHost machine){
+    public static void stopNetworking(DockerHost machine){
         spi.stopNetworking(machine);
     }
 
@@ -81,7 +81,7 @@ public final class Networking {
      * Starts networking on a given docker machine.
      * @param machine the machine, not null.
      */
-    public static void startNetworking(JDockerHost machine){
+    public static void startNetworking(DockerHost machine){
         spi.startNetworking(machine);
     }
 

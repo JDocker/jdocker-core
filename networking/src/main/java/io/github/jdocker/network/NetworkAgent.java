@@ -16,27 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.agent;
+package io.github.jdocker.network;
 
-import io.vertx.core.Launcher;
-import io.vertx.core.VertxOptions;
+import io.vertx.core.AbstractVerticle;
 
 /**
- * Created by atsticks on 24.01.16.
+ * Main Docker network process, which is able to perform network setup and policy changes.
  */
-public class AgentLauncher extends Launcher{
+public class NetworkAgent extends AbstractVerticle{
 
-    public static void main(String... args){
-        Launcher.main(new String[]{"run", DockerAgentVerticle.class.getName()});
+    public void start() {
+        // register node into known nodes
     }
 
-    public void beforeStartingVertx(VertxOptions options) {
-        // read machine IP
-        // check for installation of docker, docker-machine and calico
+    public void stop() {
+        // remove nodes from known nodes.
     }
 
-    @Override
-    public String getMainVerticle() {
-        return DockerAgentVerticle.class.getName();
-    }
 }
