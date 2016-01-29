@@ -32,20 +32,34 @@ public final class Executor {
 
     public static String execute(String... commands) {
         StringBuffer output = new StringBuffer();
-        Process p;
-        try {
-            p = Runtime.getRuntime().exec(commands);
-            p.waitFor();
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(p.getInputStream()));
+        for(String command:commands) {
+            Process p;
+            try {
+                p = Runtime.getRuntime().exec(command);
+                p.waitFor();
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(p.getInputStream()));
 
-            String line = "";
-            while ((line = reader.readLine())!= null) {
-                output.append(line + "\n");
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    output.append(line + "\n");
+                }
+
+                reader =
+                        new BufferedReader(new InputStreamReader(p.getErrorStream()));
+
+                line = "";
+                while ((line = reader.readLine()) != null) {
+                    if(line.isEmpty()){
+                        output.append("ERROR: ");
+                    }
+                    output.append(line + "\n");
+                }
+
+            } catch (Exception e) {
+                output.append("ERROR: " + command + " - " + e.getMessage());
+                e.printStackTrace();
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return output.toString().trim();
 

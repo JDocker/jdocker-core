@@ -75,7 +75,7 @@ public final class DockerAgentCommands {
             "<dockerHost>",
             new JsonObject().put("action", "docker-start").put("dockerHost", "mainDocker.intra.net").put("output", "SUCCESS").put("success", true).toString(),
             "Starts a non running docker container."));
-    public static final CommandDescriptor DOCKER_STOP = register(CommandDescriptor.of("jdocker:docker-start",
+    public static final CommandDescriptor DOCKER_STOP = register(CommandDescriptor.of("jdocker:docker-stop",
             "<dockerHost>",
             new JsonObject().put("action", "docker-stop").put("dockerHost", "mainDocker.intra.net").put("output", "SUCCESS").put("success", true).toString(),
             "Stops a running docker container."));

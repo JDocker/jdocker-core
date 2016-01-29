@@ -55,7 +55,6 @@
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.52" level="project" />
     <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-core:3.1.0" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.7" level="project" />
-    <orderEntry type="library" name="Maven: com.readytalk:metrics3-statsd:4.1.0" level="project" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-core:3.2.0" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-common:4.0.33.Final" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.0.33.Final" level="project" />

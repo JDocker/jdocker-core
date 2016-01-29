@@ -27,10 +27,7 @@ import io.vertx.core.json.JsonObject;
 import org.apache.tamaya.Configuration;
 import org.apache.tamaya.ConfigurationProvider;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -52,8 +49,24 @@ public class DockerAgentVerticle extends AbstractVerticle{
     /** The id of zhe timer for sending the heartbeats. */
     private long timerID;
 
+    public DockerAgentVerticle(){
+        MachineConfigBuilder builder = null;
+        try{
+            InetAddress address = InetAddress.getLocalHost();
+            LOG.info("Initializing JDocker Agent for " + address.getHostName());
+            builder = MachineConfig.builder(address.getHostName());
+            builder.setInstallUri("tcp:/"+address.getHostAddress());
+            builder = MachineConfig.builder(address.getHostName());
+        } catch (UnknownHostException e) {
+            builder = MachineConfig.builder(UUID.randomUUID().toString());
+        }
+
+        builder.setDriver("direct-access");
+        machineConfig = builder.build();
+        LOG.info("Loaded JDocker Machine Configuration: " + machineConfig);
+    }
+
     public void start() {
-        initLocalNode();
         // register node into known nodes
         EventBus eb = vertx.eventBus();
         // TODO access a clustered event bus here...
@@ -184,23 +197,6 @@ public class DockerAgentVerticle extends AbstractVerticle{
         return new JsonObject();
     }
 
-    private void initLocalNode() {
-        MachineConfigBuilder builder = null;
-        try{
-            InetAddress address = InetAddress.getLocalHost();
-            LOG.info("Initializing JDocker Agent for " + address.getHostName());
-            builder = MachineConfig.builder(address.getHostName());
-            builder.setInstallUri("tcp:/"+address.getHostAddress());
-            builder = MachineConfig.builder(address.getHostName());
-        } catch (UnknownHostException e) {
-            builder = MachineConfig.builder(UUID.randomUUID().toString());
-        }
-
-        builder.setDriver("direct-access");
-        machineConfig = builder.build();
-        LOG.info("Loaded JDocker Machine Configuration: " + machineConfig);
-    }
-
     public void stop() {
         // remove nodes from known nodes.
         EventBus eb = vertx.eventBus();
@@ -208,14 +204,28 @@ public class DockerAgentVerticle extends AbstractVerticle{
         eb.send("jdocker.Docker.Agent:stopped", machineConfig.getName());
     }
 
+    public String getKernelVersion(){
+        return Executor.execute("uname -r");
+    }
+
+    public String getCommand(String commandName){
+        String[] locations = new String[]{System.getProperty("user.home")+"/bin/", "/usr/local/bin/","/usr/bin/","/bin/", "/usr/bin/X11/",
+            "/usr/games/", "/opt/kde3/bin/"};
+        for(String loc:locations){
+            String filePath = loc + commandName;
+            if(new File(filePath).exists()){
+                return filePath;
+            }
+        }
+        return null;
+    }
+
     public boolean isWhichInstalled(){
-        String inst = Executor.execute("which sh");
-        return inst.equals("/bin/sh") || inst.equals("/usr/bin/sh");
+        return getCommand("which")!=null;
     }
 
     public boolean isDockerInstalled(){
-        String inst = Executor.execute("which docker");
-        return !inst.contains("no docker in");
+        return getCommand("docker")!=null;
     }
 
     public String installDocker()throws IOException{
@@ -226,8 +236,7 @@ public class DockerAgentVerticle extends AbstractVerticle{
     }
 
     public boolean isCalicoInstalled(){
-        String inst = Executor.execute("which calico");
-        return !inst.contains("no calico in");
+        return getCommand("calico")!=null;
     }
 
     public String installCalico()throws IOException{
@@ -239,17 +248,26 @@ public class DockerAgentVerticle extends AbstractVerticle{
 
 
     public boolean isSshInstalled(){
-        String inst = Executor.execute("which ssh");
-        return !inst.contains("no ssh in");
+        return getCommand("ssh")!=null;
     }
 
     public boolean isDockerMachineInstalled(){
-        String inst = Executor.execute("which docker-machine");
-        return !inst.contains("no docker-achine in");
+        return getCommand("docker-machine")!=null;
     }
 
     public String installDockerMachine()throws IOException{
         String installScripts = ConfigurationProvider.getConfiguration().get("jdocker.install.Docker-Machine.installScripts");
+        String[] scriptURLs = installScripts.split(",");
+        String[] scripts = loadScripts(scriptURLs);
+        return Executor.execute(scripts);
+    }
+
+    public boolean isDockerComposeInstalled(){
+        return getCommand("docker-compose")!=null;
+    }
+
+    public String installDockerCompose()throws IOException{
+        String installScripts = ConfigurationProvider.getConfiguration().get("jdocker.install.Docker-Compose.installScripts");
         String[] scriptURLs = installScripts.split(",");
         String[] scripts = loadScripts(scriptURLs);
         return Executor.execute(scripts);
@@ -383,10 +401,12 @@ WARNING: No swap limit support
         }
         boolean inSection = false;
         while(line!=null){
-            if(inSection){
+            if(inSection && !line.contains("error") && !line.contains("ERROR:")){
                 // NAME   ACTIVE   DRIVER  STATE  URL  SWARM
                 int index = line.indexOf(" ");
-                result.add(line.substring(0,index));
+                if(index>0) {
+                    result.add(line.substring(0, index));
+                }
             }
             if(line.startsWith("NAME")){
                 inSection = true;
@@ -532,12 +552,14 @@ vboxnet0  Link encap:Ethernet  Hardware Adresse 0A:00:27:00:00:00
      */
     public List<String> getMachineNames(){
         // Lookup in config clusters
+        List<String> machines = new ArrayList<>();
         Configuration cfg = ConfigurationProvider.getConfiguration();
         String namesVal = cfg.get("jdocker.machines");
         if(namesVal!=null){
-            return Arrays.asList(namesVal.split(","));
+            machines.addAll(Arrays.asList(namesVal.split(",")));
         }
-        return Collections.emptyList();
+        machines.add(this.machineConfig.getName());
+        return machines;
     }
 
     /**
