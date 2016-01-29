@@ -53,19 +53,19 @@ public class CalicoNetworkingSpi implements NetworkingSpi{
 
     @Override
     public void installNetworking(DockerHost machine){
-        String result = Executor.executeRemote(machine, "calicoctl node --libnetwork");
+        String result = Executor.executeRemote(machine.getUri().getHost(), "calicoctl node --libnetwork");
         // TODO check for errors
     }
 
     @Override
     public void stopNetworking(DockerHost machine){
-        String result =   Executor.executeRemote(machine, "sudo calicoctl node stop");
+        String result =   Executor.executeRemote(machine.getUri().getHost(), "sudo calicoctl node stop");
         // TODO check for errors
     }
 
     @Override
     public void startNetworking(DockerHost machine){
-        String result =   Executor.executeRemote(machine, "sudo calicoctl node start");
+        String result =   Executor.executeRemote(machine.getUri().getHost(), "sudo calicoctl node start");
         // TODO check for errors
     }
 
