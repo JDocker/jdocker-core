@@ -18,6 +18,7 @@
  */
 package io.github.jdocker;
 
+import io.github.jdocker.common.CommandDescriptor;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -117,10 +118,10 @@ public final class DockerAgentCommands {
             "<dockerHost>", "<software-install-json>", "Installs the software required on the agent's machine, the agent requires an internet connection."));
 
     public static CommandDescriptor register(CommandDescriptor desc) {
-        if (COMMANDS.containsKey(desc.commandName)) {
-            throw new IllegalArgumentException("Command already defined: " + desc.commandName);
+        if (COMMANDS.containsKey(desc.getName())) {
+            throw new IllegalArgumentException("Command already defined: " + desc.getName());
         }
-        COMMANDS.put(desc.commandName, desc);
+        COMMANDS.put(desc.getName(), desc);
         return desc;
     }
 
@@ -131,7 +132,7 @@ public final class DockerAgentCommands {
     public static String getParameters(String command) {
         CommandDescriptor desc = COMMANDS.get(command);
         if(desc==null){
-            return desc.parameters;
+            return desc.getParameters();
         }
         throw new IllegalArgumentException("No such command: " + command);
     }
@@ -139,7 +140,7 @@ public final class DockerAgentCommands {
     public static String getResult(String command) {
         CommandDescriptor desc = COMMANDS.get(command);
         if(desc==null){
-            return desc.result;
+            return desc.getResult();
         }
         throw new IllegalArgumentException("No such command: " + command);
     }
@@ -147,7 +148,7 @@ public final class DockerAgentCommands {
     public static String getDescription(String command) {
         CommandDescriptor desc = COMMANDS.get(command);
         if(desc==null){
-            return desc.description;
+            return desc.getDescription();
         }
         throw new IllegalArgumentException("No such command: " + command);
     }

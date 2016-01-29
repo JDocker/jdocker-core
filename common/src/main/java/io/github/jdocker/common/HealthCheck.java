@@ -24,6 +24,12 @@ package io.github.jdocker.common;
 public interface HealthCheck {
 
     /**
+     * Each healthcheck is identified by a unique UUID.
+     * @return
+     */
+    String getId();
+
+    /**
      * Performs the health check and provides a serializable, fully contained result.
      * @return
      */
