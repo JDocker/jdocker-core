@@ -496,7 +496,7 @@ WARNING: No swap limit support
      * @return the MachineConfig instance, or null.
      */
     public String machineInspect(String name){
-        return Executor.execute("docker-machine inspect");
+        return Executor.execute("docker-machine inspect " + name);
     }
 
 
