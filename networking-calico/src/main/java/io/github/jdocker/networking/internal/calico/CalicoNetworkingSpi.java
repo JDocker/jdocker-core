@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.network.internal.calico;
+package io.github.jdocker.networking.internal.calico;
 
 import com.spotify.docker.client.messages.ContainerInfo;
 import io.github.jdocker.DockerHost;

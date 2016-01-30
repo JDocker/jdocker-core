@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.network.internal.calico;
+package io.github.jdocker.networking.internal.calico;
 
 import io.github.jdocker.common.Executor;
 import io.github.jdocker.network.AddressPool;
-import io.github.jdocker.network.spi.NetworkingIPAMSpi;
+import io.github.jdocker.network.spi.IPAddressManagerSpi;
 
 import java.util.Collections;
 import java.util.Map;
@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by atsticks on 18.01.16.
  */
-public class CalicoIPAMSpi implements NetworkingIPAMSpi{
+public class CalicoIPAMSpi implements IPAddressManagerSpi {
 
     private Map<String,AddressPool> pools = new ConcurrentHashMap<>();
     private Set<String> networks = new TreeSet<>();

@@ -68,4 +68,15 @@ public class AddressPool {
         return new NetworkBuilder(name);
     }
 
+    @Override
+    public String toString() {
+        return "AddressPool{" +
+                "name='" + name + '\'' +
+                ", cidrExpression='" + cidrExpression + '\'' +
+                ", startIP='" + startIP + '\'' +
+                ", endIP='" + endIP + '\'' +
+                ", ipip=" + ipip +
+                ", outgoing=" + outgoing +
+                '}';
+    }
 }

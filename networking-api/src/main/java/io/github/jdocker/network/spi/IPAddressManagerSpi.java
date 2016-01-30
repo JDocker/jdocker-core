@@ -20,18 +20,20 @@ package io.github.jdocker.network.spi;
 
 import io.github.jdocker.network.AddressPool;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
  * Created by atsticks on 19.01.16.
  */
-public interface NetworkingIPAMSpi {
+public interface IPAddressManagerSpi {
 
     /**
      * Create a network to be used by containers with complete visibility.
      * @param name the network name, not null.
+     * @@aram pools The pools to be assigned.
      */
-    void createNetwork(String name);
+    void createNetwork(String name, AddressPool... pools);
 
     /**
      * Remove the defined network.
@@ -50,22 +52,24 @@ public interface NetworkingIPAMSpi {
      * @param name the network's name, not null.
      * @return the network address pool, or null, if no such networks exists.
      */
-    AddressPool getAddressPool(String name);
+    Collection<AddressPool> getAddressPools(String name);
 
     /**
      * This command adds all IP addresses between two IPs as Calico pool(s).<br/>
      * NOTE: Calico pools must be identified with a CIDR prefix, so in the case that the start and end of the range
      * are not on a single CIDR boundary, this command creates multiple pools such that the entire range is covered.<br/>
      * @param pool the ip address pool.
+     * @param network the network id.
      * @return the command output.
      */
-    void addAddressPool(AddressPool pool);
+    void addAddressPool(AddressPool pool, String network);
 
     /**
      * This command is used to remove configured CIDR pools.
      * @param pool The pool to be removed.
+     * @param network the network id.
      */
-    void removeAddressPool(AddressPool pool);
+    void removeAddressPool(AddressPool pool, String network);
 
     /**
      * This command allows you to release an IP address that had been previously assigned to an endpoint. When an IP

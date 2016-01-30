@@ -21,11 +21,9 @@ package io.github.jdocker.network;
 import com.spotify.docker.client.messages.ContainerInfo;
 import io.github.jdocker.DockerHost;
 import io.github.jdocker.common.ServiceContextManager;
-import io.github.jdocker.network.spi.NetworkingIPAMSpi;
 import io.github.jdocker.network.spi.NetworkingSpi;
 
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * Singleton for networking functionality.
@@ -33,7 +31,6 @@ import java.util.Set;
 public final class Networking {
 
     private static final NetworkingSpi spi = ServiceContextManager.getServiceContext().getService(NetworkingSpi.class);
-    private static final NetworkingIPAMSpi ipamSpi = ServiceContextManager.getServiceContext().getService(NetworkingIPAMSpi.class);
 
     private Networking(){}
 
@@ -62,27 +59,31 @@ public final class Networking {
     }
 
     /**
+     * Checks if the given software is already installed locally.
+     */
+    public static boolean installNetworkingInstalled(){
+        return spi.isNetworkingInstalled();
+    }
+
+    /**
      * Installs all needed required to run networking with the given machine.
-     * @param machine the target machine, not null.
      */
-    public static void installNetworking(DockerHost machine){
-        spi.installNetworking(machine);
+    public static void installNetworking(){
+        spi.installNetworking();
     }
 
     /**
-     * Stops networking on a given docker machine.
-     * @param machine the machine, not null.
+     * Stops networking services.
      */
-    public static void stopNetworking(DockerHost machine){
-        spi.stopNetworking(machine);
+    public static void stopNetworking(){
+        spi.stopNetworking();
     }
 
     /**
-     * Starts networking on a given docker machine.
-     * @param machine the machine, not null.
+     * Starts networking services.
      */
-    public static void startNetworking(DockerHost machine){
-        spi.startNetworking(machine);
+    public static void startNetworking(){
+        spi.startNetworking();
     }
 
     /**
@@ -170,77 +171,6 @@ public final class Networking {
      */
     public static void removeSecurityProfiles(ContainerInfo container, SecurityProfile... profiles){
         spi.removeSecurityProfiles(container, profiles);
-    }
-
-    /**
-     * Create a network to be used by containers with complete visibility.
-     * @param name the network name, not null.
-     */
-    public static void createNetwork(String name){
-        ipamSpi.createNetwork(name);
-    }
-
-    /**
-     * Remove the defined network.
-     * @param name the network's name, not null.
-     */
-    public static void removeNetwork(String name){
-        ipamSpi.removeNetwork(name);
-    }
-
-    /**
-     * Get the currently defined network ids.
-     * @return the network ids.
-     */
-    public static Set<String> getNetworks(){
-        return ipamSpi.getNetworks();
-    }
-
-    /**
-     * This command adds the given address pool to the addresses assignable.<br/>
-     * @param pool the ip address pool.
-     * @return the command output.
-     */
-    public static void addAddressPool(AddressPool pool){
-        ipamSpi.addAddressPool(pool);
-    }
-
-    /**
-     * This command is used to remove configured CIDR pools.
-     * @param pool The pool to be removed.
-     */
-    public static void removeAddressPool(AddressPool pool){
-        ipamSpi.removeAddressPool(pool);
-    }
-
-    /**
-     * This command allows you to release an IP address that had been previously assigned to an endpoint. When an IP
-     * address is released, it becomes available for assignment to any endpoint.<br/>
-     * Note that this does not remove the IP from any existing endpoints that may be using it, so we generally
-     * recommend you use this command to clean up addresses from endpoints that were not cleanly removed.<nr/>
-     * @param ip the ip address, not null
-     * @return the command output
-     */
-    public static void releaseIP(String ip){
-        ipamSpi.releaseIP(ip);
-    }
-
-    /**
-     * This command prints information about a given IP address, such as special attributes defined for the IP or
-     * whether the IP has been reserved by a user.<br/>
-     * @param ip the ip address, not null
-     * @return the info text
-     */
-    public static String getIPInfo(String ip){
-        return ipamSpi.getIPInfo(ip);
-    }
-
-    /**
-     * Access general info about the known address pools.
-     * @return a general info on the current pools, not null.
-     */
-    public static String getAddressPoolInfo(){
-        return ipamSpi.getAddressPoolInfo();
     }
 
 }

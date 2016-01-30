@@ -44,21 +44,24 @@ public interface NetworkingSpi {
 
     /**
      * Installs all needed required to run networking with the given machine.
-     * @param machine the target machine, not null.
      */
-    void installNetworking(DockerHost machine);
+    void installNetworking();
+
+    /**
+     * Determines if the networking software is locally installed on the machine.
+     * @return true, if the required software is installed.
+     */
+    boolean isNetworkingInstalled();
 
     /**
      * Stops networking on a given docker machine.
-     * @param machine the machine, not null.
      */
-    void stopNetworking(DockerHost machine);
+    void stopNetworking();
 
     /**
      * Starts networking on a given docker machine.
-     * @param machine the machine, not null.
      */
-    void startNetworking(DockerHost machine);
+    void startNetworking();
 
     /**
      * Create a security profile. Security profiles can be reused for several containers.
