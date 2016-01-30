@@ -117,6 +117,7 @@ public final class DockerAgentCommands {
     public static final CommandDescriptor DOCKER_SOFTWARE_INSTALL = register(CommandDescriptor.of("jdocker.Docker:installSW",
             "<dockerHost>", "<software-install-json>", "Installs the software required on the agent's machine, the agent requires an internet connection."));
 
+
     public static CommandDescriptor register(CommandDescriptor desc) {
         if (COMMANDS.containsKey(desc.getName())) {
             throw new IllegalArgumentException("Command already defined: " + desc.getName());

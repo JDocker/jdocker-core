@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.events;
+package io.github.jdocker.common;
 
 /**
  * For these commands logic is required and according listeners/actors must be defined.

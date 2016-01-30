@@ -16,22 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.events;
+package io.github.jdocker.agent;
 
-import java.util.Objects;
+import io.vertx.core.AbstractVerticle;
 
 /**
- * Created by atsticks on 22.01.16.
+ * Main Docker network process, which is able to perform network setup and policy changes.This agent must implement the
+ * commands defined in {@link NetworkAgentCommands}.
  */
-public final class MachineRemovalRequest {
+public class NetworkingAgent extends AbstractVerticle{
 
-    private String machineId;
-
-    public MachineRemovalRequest(String machineId){
-        this.machineId = Objects.requireNonNull(machineId);
+    public void start() {
+        // register node into known nodes
     }
 
-    public String getMachineId(){
-        return machineId;
+    public void stop() {
+        // remove nodes from known nodes.
     }
+
 }
