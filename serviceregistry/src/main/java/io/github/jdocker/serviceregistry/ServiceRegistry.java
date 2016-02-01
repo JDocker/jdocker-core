@@ -17,19 +17,42 @@
 package io.github.jdocker.serviceregistry;
 
 import io.github.jdocker.common.Endpoint;
-import io.vertx.core.AbstractVerticle;
+import io.vertx.core.*;
 import org.apache.tamaya.Configuration;
 import org.apache.tamaya.ConfigurationProvider;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A list of endpoints to for service registration.
  */
 public class ServiceRegistry extends AbstractVerticle {
+   private boolean clustered;
+
+  public void start(Future<Void> startFuture) throws Exception {
+    clustered = config().getBoolean("clustered", false);
+
+    startFuture.complete();
+  }
+
+
+  private void initRegistrationEndpoint() {
+
+  }
+
+  private void initClusteredStore() {
+
+  }
+
+  private void initLocalStore() {
+
+  }
 
   private final Map<String, List<Endpoint>> services = new ConcurrentHashMap<>();
 
@@ -61,6 +84,23 @@ public class ServiceRegistry extends AbstractVerticle {
 
   public Set<String> getServices() {
     return services.keySet();
+  }
+
+  public static void main(String[] args) {
+   // DeploymentOptions options = new DeploymentOptions().setInstances(1).setConfig(new JsonObject().put("host","localhost"));
+   // Vertx.vertx().deployVerticle(ServiceRegistry.class.getName(),options);
+
+    VertxOptions vOpts = new VertxOptions();
+    DeploymentOptions options = new DeploymentOptions().setInstances(1);
+    vOpts.setClustered(true);
+    Vertx.clusteredVertx(vOpts, cluster -> {
+      if (cluster.succeeded()) {
+        final Vertx result = cluster.result();
+        result.deployVerticle(ServiceRegistry.class.getName(), options, handle -> {
+
+        });
+      }
+    });
   }
 
 }

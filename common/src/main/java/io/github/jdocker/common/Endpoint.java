@@ -16,13 +16,14 @@
  */
 package io.github.jdocker.common;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.*;
 
 /**
  * Class that implements the basic functionality of an endpoint type.
  */
-public class Endpoint {
+public class Endpoint implements Serializable{
 
     private final String name;
     private String protocol;
