@@ -16,19 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.agent;
+package io.github.jdocker.agent.internal;
 
-import io.github.jdocker.*;
+import io.github.jdocker.Machine;
+import io.github.jdocker.MachineConfig;
+import io.github.jdocker.MachineConfigBuilder;
+import io.github.jdocker.SwarmConfig;
+import io.github.jdocker.agent.DockerAgent;
 import io.github.jdocker.common.Executor;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
 import org.apache.tamaya.Configuration;
 import org.apache.tamaya.ConfigurationProvider;
 
 import java.io.*;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -38,9 +39,9 @@ import java.util.logging.Logger;
 /**
  * Main Docker process, which is able to perform deployment, monitoring as well as statistical functions.
  */
-public class DockerAgentVerticle extends AbstractVerticle{
+public class DefaultDockerAgent implements DockerAgent{
 
-    private static final Logger LOG = Logger.getLogger(DockerAgentVerticle.class.getName());
+    private static final Logger LOG = Logger.getLogger(DefaultDockerAgent.class.getName());
 
     /** Default interval that defines how often an agent sends its heatbeat data. */
     private static final long DEFAULT_HEARTBEAT_INTERVAL_MS = 30000L; // all 30 seconds
@@ -49,7 +50,9 @@ public class DockerAgentVerticle extends AbstractVerticle{
     /** The id of zhe timer for sending the heartbeats. */
     private long timerID;
 
-    public DockerAgentVerticle(){
+    private io.github.jdocker.agent.DockerAgentStatus status = io.github.jdocker.agent.DockerAgentStatus.Running;
+
+    public DefaultDockerAgent(){
         MachineConfigBuilder builder = null;
         try{
             InetAddress address = InetAddress.getLocalHost();
@@ -66,142 +69,26 @@ public class DockerAgentVerticle extends AbstractVerticle{
         LOG.info("Loaded JDocker Machine Configuration: " + machineConfig);
     }
 
-    public void start() {
-        // register node into known nodes
-        EventBus eb = vertx.eventBus();
-        // TODO access a clustered event bus here...
-
-        eb.consumer(DockerAgentCommands.DOCKER_INSPECT.getName(),message -> {
-            String host = message.headers().get("host");
-            if(host==null){
-                message.fail(1, "host header missing.");
-            }
-            message.reply(getMachineConfig(host).toJSON());
-        });
-        eb.consumer(DockerAgentCommands.AGENT_GET_LABELS.getName(), message -> {
-            // TODO read from cluster config
-        });
-        eb.consumer(DockerAgentCommands.AGENT_SET_LABELS.getName(), message -> {
-            // TODO persist into cluster config
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_INFO.getName(), message -> {
-            message.reply(getDockerInfo());
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_INSPECT.getName(), message -> {
-            String host = message.headers().get("host");
-            if(host==null){
-                message.fail(1, "host header missing.");
-            }
-            message.reply(machineInspect(host));
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_STATUS.getName(), message -> {
-            String host = message.headers().get("host");
-            if(host==null){
-                message.fail(1, "host header missing.");
-            }
-            message.reply(machineStatus(host));
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_STOP.getName(), message -> {
-            String host = message.headers().get("host");
-            if(host==null){
-                message.fail(1, "host header missing.");
-            }
-            machineStop(host);
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_START.getName(), message -> {
-            String host = message.headers().get("host");
-            if(host==null){
-                message.fail(1, "host header missing.");
-            }
-            machineStart(host);
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_UPGRADE.getName(), message -> {
-            String host = message.headers().get("host");
-            if(host==null){
-                message.fail(1, "host header missing.");
-            }
-            machineUpgrade(host);
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_RESTART.getName(), message -> {
-            String host = message.headers().get("host");
-            if(host==null){
-                message.fail(1, "host header missing.");
-            }
-            machineRestart(host);
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_KILL.getName(), message -> {
-            String host = message.headers().get("host");
-            if(host==null){
-                message.fail(1, "host header missing.");
-            }
-            machineKill(host);
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_IP.getName(), message -> {
-            String host = message.headers().get("host");
-            if(host==null){
-                message.fail(1, "host header missing.");
-            }
-            machineIP(host);
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_DEPLOY.getName(), message -> {
-            String host = message.headers().get("host");
-            if(host==null){
-                message.fail(1, "host header missing.");
-            }
-            vertx.executeBlocking(future -> {
-                // Call some blocking API that takes a significant amount of time to return
-                //            if(host.equals(this.getAgentName())){
-//                // TODO
-//                deployLocally(message.getBody());
-//            }
-//            else{
-//                machineDeploy(host, message.getBody());
-//            }
-                future.complete(true);
-            }, res -> {
-                System.out.println("The result is: " + res.result());
-            });
-
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_CHECK_DEPLOYMENT.getName(), message -> {
-            String host = message.headers().get("host");
-            if(host==null){
-                message.fail(1, "host header missing.");
-            }
-//            CHeck if this installation (container) matches these settings here...
-            // and if the health state is OK for a deployment...
-        });
-        eb.consumer(DockerAgentCommands.DOCKER_SOFTWARE_CHECK.getName(), message -> {
-            message.reply(new JsonObject()
-                    .put("which", isWhichInstalled())
-                    .put("calico", isCalicoInstalled())
-                    .put("ssh", isSshInstalled())
-                    .put("docker-machine", isCalicoInstalled())
-                    .put("docker", isDockerInstalled()));
-        });
-        eb.send("jdocker.Docker.Agent:started", machineConfig.getName());
-        Long heartbeatInternal = ConfigurationProvider.getConfiguration().get("jdocker.Docker.Agent.heartbeatInterval", Long.class);
-        if(heartbeatInternal==null){
-            heartbeatInternal = Long.valueOf(DEFAULT_HEARTBEAT_INTERVAL_MS);
-        }
-        timerID = vertx.setTimer(heartbeatInternal, id -> {
-            // register node into known nodes
-            EventBus bus = vertx.eventBus();
-            bus.send("jdocker.Docker.Agent:heartbeat", createHeartbeat());
-        });
-
+    @Override
+    public String getAgentName() {
+        return this.machineConfig.getName();
     }
 
-    private JsonObject createHeartbeat(){
-        // TODO implement heartbeat returned
-        return new JsonObject();
+    @Override
+    public URI getURI() {
+        return null; // TODO
     }
 
-    public void stop() {
-        // remove nodes from known nodes.
-        EventBus eb = vertx.eventBus();
-        // tbd send removal event via vertx or adapt shared configuration...???
-        eb.send("jdocker.Docker.Agent:stopped", machineConfig.getName());
+    public io.github.jdocker.agent.DockerAgentStatus getStatus(){
+        return status;
+    }
+
+    public Map<String,String> getLabels(){
+        return this.machineConfig.getLabels();
+    }
+
+    public void setLabels(Map<String,String> labels){
+        this.machineConfig.addLabels(labels);
     }
 
     public String getKernelVersion(){
@@ -235,17 +122,17 @@ public class DockerAgentVerticle extends AbstractVerticle{
         return Executor.execute(scripts);
     }
 
-    public boolean isCalicoInstalled(){
+    @Override
+    public boolean isSDNInstalled(){
         return getCommand("calico")!=null;
     }
 
-    public String installCalico()throws IOException{
+    public String installSDN()throws IOException{
         String installScripts = ConfigurationProvider.getConfiguration().get("jdocker.install.Calico.installScripts");
         String[] scriptURLs = installScripts.split(",");
         String[] scripts = loadScripts(scriptURLs);
         return Executor.execute(scripts);
     }
-
 
     public boolean isSshInstalled(){
         return getCommand("ssh")!=null;
@@ -382,6 +269,16 @@ WARNING: No swap limit support
         return Executor.execute("docker-machine kill " +name);
     }
 
+    @Override
+    public String machineDelete(String name) {
+        return Executor.execute("docker-machine rm " +name);
+    }
+
+    @Override
+    public List<String> machineList() {
+        return null;
+    }
+
     /**
      * This calls maps to {@code docker-io.github.jdocker.machine ls} listing all known machines for a given docker root.
      * @return a list with all io.github.jdocker.machine names, never null.
@@ -425,7 +322,7 @@ WARNING: No swap limit support
      * @param machineConfig the machine config, not null.
      * @return the new machine, check its status if all is OK.
      */
-    public void machineCreate(MachineConfig machineConfig){
+    public String machineCreate(MachineConfig machineConfig){
         if(machineConfig==null){
             throw new IllegalStateException("Cannot create machine without machine configuration.");
         }
@@ -442,8 +339,13 @@ WARNING: No swap limit support
         for(String reg:machineConfig.getInsecureRegistries()){
             createCommand.append("--engine-insecure-registry ").append(reg).append(' ');
         }
-        for(String lbl:machineConfig.getLabels()){
-            createCommand.append("--engine-label ").append(lbl).append(' ');
+        for(Map.Entry<String,String> en:machineConfig.getLabels().entrySet()){
+            if(en.getKey().equals(en.getValue())){
+                createCommand.append("--engine-label ").append(en.getValue()).append(' ');
+            }
+            else{
+                createCommand.append("--engine-label ").append(en.getKey()+'='+en.getValue()).append(' ');
+            }
         }
         if(machineConfig.getStorageDriver()!=null){
             createCommand.append("--engine-storage-driver ").append(machineConfig.getStorageDriver()).append(' ');
@@ -486,6 +388,7 @@ WARNING: No swap limit support
         else{
             LOG.info("MACHINE CREATION PROBABLY FAILED: " + result);
         }
+        return Executor.execute(command);
     }
 
 

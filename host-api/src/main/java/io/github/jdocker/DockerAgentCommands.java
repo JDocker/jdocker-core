@@ -56,7 +56,8 @@ public final class DockerAgentCommands {
                             .put("Built","").put("OS/Arch","linux/amd64")).toString(),
             "Get the version information of the local docker instance."));
     public static final CommandDescriptor DOCKER_INFO = register(CommandDescriptor.of("jdocker:docker-info",
-            "<host>", "Value returned by 'docker info'.", "Get the general information about the local docker instane. Example:\ncontainers: 34\n" +
+            "<host>", "Value returned by 'docker info'.", "Get the general information about the local docker instance." +
+                    "Example:\ncontainers: 34\n" +
                     "Images: 222\n" +
                     "Server Version: 1.9.1\n" +
                     "Storage Driver: btrfs\n" +

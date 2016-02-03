@@ -34,6 +34,7 @@ under the License.
     <properties>
         <vertx.version>3.2.0</vertx.version>
         <dockerclient.version>3.5.0</dockerclient.version>
+        <dropwizard.version>0.9.2</dropwizard.version>
     </properties>
 
 
@@ -41,6 +42,11 @@ under the License.
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-service-proxy</artifactId>
             <version>${vertx.version}</version>
         </dependency>
     </dependencies>

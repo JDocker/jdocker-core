@@ -21,10 +21,7 @@ package io.github.jdocker;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -45,7 +42,7 @@ public final class MachineConfig {
      */
     private String installURL;
     /**
-     * Specify arbitrary flags to include with the created engine in the form {@code flag=value}. Maps to
+     * Specify arbitrary flags to include with the created engine in the form {@code flag=cardinality}. Maps to
      * {@code --engine-opt [--engine-opt option --engine-opt option] }.
      */
     private Set<String> engineOptions = new HashSet<>();
@@ -54,7 +51,7 @@ public final class MachineConfig {
      */
     private Set<String> insecureRegistries = new HashSet<>();
     /** Labels assigned to the io.github.jdocker.machine, maps to {@code --engine-label [--engine-label option --engine-label option] }. */
-    private Set<String> labels = new HashSet<>();
+    private Map<String,String> labels = new HashMap<>();
     /** THe storage driver to be used, maps to {@code --engine-storage-driver }. */
     private String storageDriver;
     /** Define environment variables for the engine. Maps to
@@ -69,7 +66,7 @@ public final class MachineConfig {
         this.engineOptions.addAll(builder.getEngineOptions());
         this.insecureRegistries.addAll(builder.getInsecureRegistries());
         this.installURL = builder.getInstallURL();
-        this.labels.addAll(builder.getLabels());
+        this.labels.putAll(builder.getLabels());
         this.storageDriver = builder.getStorageDriver();
         this.swarmConfig = builder.getSwarmConfig();
     }
@@ -108,8 +105,12 @@ public final class MachineConfig {
         return Collections.unmodifiableSet(insecureRegistries);
     }
 
-    public Set<String> getLabels() {
-        return Collections.unmodifiableSet(labels);
+    public Map<String,String> getLabels() {
+        return Collections.unmodifiableMap(labels);
+    }
+
+    public void addLabels(Map<String,String> labels) {
+        this.labels.putAll(labels);
     }
 
     public String getStorageDriver() {
@@ -134,8 +135,13 @@ public final class MachineConfig {
         }
         // labelsl
         JsonArray array = new JsonArray();
-        for(String label:labels){
-            array.add(label);
+        for(Map.Entry<String,String> en:labels.entrySet()){
+            if(en.getKey().equals(en.getValue())) {
+                array.add(en.getValue());
+            }
+            else{
+                array.add(en.getKey()+'='+en.getValue());
+            }
         }
         o.put("labels", array);
         array = new JsonArray();

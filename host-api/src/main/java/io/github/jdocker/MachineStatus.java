@@ -31,7 +31,5 @@ public enum MachineStatus {
     /** There was some unknown error that prevented the evaluation of the status, e.g. docker-io.github.jdocker.machine is
      * not installed.
      */
-    Unknown,
-    /** The io.github.jdocker.machine is not known to the current docker-io.github.jdocker.machine setup.*/
-    NotExisting
+    Unknown
 }
