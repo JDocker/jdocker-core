@@ -19,9 +19,7 @@
 package io.github.jdocker.network;
 
 import com.spotify.docker.client.messages.ContainerInfo;
-import io.github.jdocker.DockerHost;
 import io.github.jdocker.common.ServiceContextManager;
-import io.github.jdocker.network.spi.NetworkingSpi;
 
 import java.util.Collection;
 
@@ -30,7 +28,7 @@ import java.util.Collection;
  */
 public final class Networking {
 
-    private static final NetworkingSpi spi = ServiceContextManager.getServiceContext().getService(NetworkingSpi.class);
+    private static final NetworkManager spi = ServiceContextManager.getServiceContext().getService(NetworkManager.class);
 
     private Networking(){}
 

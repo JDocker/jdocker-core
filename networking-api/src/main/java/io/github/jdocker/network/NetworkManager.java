@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker.network.spi;
+package io.github.jdocker.network;
 
 import com.spotify.docker.client.messages.ContainerInfo;
 import io.github.jdocker.DockerHost;
@@ -28,7 +28,7 @@ import java.util.Collection;
 /**
  * Created by atsticks on 19.01.16.
  */
-public interface NetworkingSpi {
+public interface NetworkManager {
 
     /**
      * Access general status of the networking support.

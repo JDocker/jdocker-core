@@ -20,18 +20,15 @@ package io.github.jdocker.networking.internal.calico;
 
 import io.github.jdocker.common.Executor;
 import io.github.jdocker.network.AddressPool;
-import io.github.jdocker.network.spi.IPAddressManagerSpi;
+import io.github.jdocker.network.IPAddressManager;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by atsticks on 18.01.16.
  */
-public class CalicoIPAMSpi implements IPAddressManagerSpi {
+public class CalicoIPAMSpi implements IPAddressManager {
 
     private Map<String,AddressPool> pools = new ConcurrentHashMap<>();
     private Set<String> networks = new TreeSet<>();
@@ -118,6 +115,11 @@ public class CalicoIPAMSpi implements IPAddressManagerSpi {
     public AddressPool getAddressPool(String name){
         return this.pools.get(name);
         // TODO synch with Tamaya
+    }
+
+    @Override
+    public Collection<AddressPool> getAddressPools() {
+        return this.pools.values();
     }
 
     /**

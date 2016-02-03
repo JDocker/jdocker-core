@@ -18,74 +18,70 @@
  */
 package io.github.jdocker.network;
 
-import io.github.jdocker.common.ServiceContextManager;
-import io.github.jdocker.network.spi.IPAddressManagerSpi;
-
 import java.util.Collection;
 import java.util.Set;
 
 /**
- * Singleton for ID adress management.
+ * Created by atsticks on 19.01.16.
  */
-public final class IPAddressManager {
-
-    private static final IPAddressManagerSpi ipamSpi = ServiceContextManager.getServiceContext().getService(IPAddressManagerSpi.class);
-
-    private IPAddressManager(){}
-
+public interface IPAddressManager {
 
     /**
      * Create a network to be used by containers with complete visibility.
      * @param name the network name, not null.
      */
-    public static void createNetwork(String name, AddressPool... pools){
-        ipamSpi.createNetwork(name, pools);
-    }
+    void createNetwork(String name);
 
     /**
      * Remove the defined network.
      * @param name the network's name, not null.
      */
-    public static void removeNetwork(String name){
-        ipamSpi.removeNetwork(name);
-    }
+    void removeNetwork(String name);
 
     /**
      * Get the currently defined network ids.
      * @return the network ids.
      */
-    public static Set<String> getNetworks(){
-        return ipamSpi.getNetworks();
-    }
+    Set<String> getNetworks();
 
     /**
-     * This command adds the given address pool to the addresses assignable.<br/>
+     * Get the adddress pool by name.
+     * @param name the pool name, not null
+     * @return the pool, or null.
+     */
+    AddressPool getAddressPool(String name);
+
+    /**
+     * Get the asigned network address pools.
+     * @return the network address pool, or null, if no such networks exists.
+     */
+    Collection<AddressPool> getAddressPools();
+
+    /**
+     * This command adds all IP addresses between two IPs as Calico pool(s).<br/>
+     * NOTE: Calico pools must be identified with a CIDR prefix, so in the case that the start and end of the range
+     * are not on a single CIDR boundary, this command creates multiple pools such that the entire range is covered.<br/>
      * @param pool the ip address pool.
+//     * @param network the network id.
      * @return the command output.
      */
-    public static void addAddressPool(AddressPool pool, String network){
-        ipamSpi.addAddressPool(pool, network);
-    }
+    void addAddressPool(AddressPool pool);
 
     /**
      * This command is used to remove configured CIDR pools.
      * @param pool The pool to be removed.
      */
-    public static void removeAddressPool(AddressPool pool, String network){
-        ipamSpi.removeAddressPool(pool, network);
-    }
-
+    void removeAddressPool(AddressPool pool);
     /**
      * This command allows you to release an IP address that had been previously assigned to an endpoint. When an IP
      * address is released, it becomes available for assignment to any endpoint.<br/>
      * Note that this does not remove the IP from any existing endpoints that may be using it, so we generally
-     * recommend you use this command to clean up addresses from endpoints that were not cleanly removed.<nr/>
+     * recommend you use this command to clean up addresses from endpoints that were not cleanly removed from Calico.<nr/>
+     * This command can be run on any Calico node.
      * @param ip the ip address, not null
      * @return the command output
      */
-    public static void releaseIP(String ip){
-        ipamSpi.releaseIP(ip);
-    }
+    void releaseIP(String ip);
 
     /**
      * This command prints information about a given IP address, such as special attributes defined for the IP or
@@ -93,16 +89,11 @@ public final class IPAddressManager {
      * @param ip the ip address, not null
      * @return the info text
      */
-    public static String getIPInfo(String ip){
-        return ipamSpi.getIPInfo(ip);
-    }
+    String getIPInfo(String ip);
 
     /**
      * Access general info about the known address pools.
      * @return a general info on the current pools, not null.
      */
-    public static String getAddressPoolInfo(){
-        return ipamSpi.getAddressPoolInfo();
-    }
-
+    String getAddressPoolInfo();
 }

@@ -21,9 +21,10 @@ package io.github.jdocker.networking.internal.calico;
 import com.spotify.docker.client.messages.ContainerInfo;
 import io.github.jdocker.DockerHost;
 import io.github.jdocker.common.Executor;
+import io.github.jdocker.common.ServiceContextManager;
 import io.github.jdocker.network.NetworkingStatus;
 import io.github.jdocker.network.SecurityProfile;
-import io.github.jdocker.network.spi.NetworkingSpi;
+import io.github.jdocker.network.NetworkManager;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -33,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by atsticks on 18.01.16.
  */
-public class CalicoNetworkingSpi implements NetworkingSpi{
+public class CalicoNetworkingSpi implements NetworkManager {
 
     private final Map<String,SecurityProfile> profiles = new ConcurrentHashMap<>();
 
@@ -52,20 +53,27 @@ public class CalicoNetworkingSpi implements NetworkingSpi{
     }
 
     @Override
-    public void installNetworking(DockerHost machine){
-        String result = Executor.executeRemote(machine.getUri().getHost(), "calicoctl node --libnetwork");
+    public boolean isNetworkingInstalled() {
+        String result = Executor.execute("which calicoctl");
+        // Check
+        return true;
+    }
+
+    @Override
+    public void installNetworking(){
+        String result = Executor.execute("calicoctl node --libnetwork");
         // TODO check for errors
     }
 
     @Override
-    public void stopNetworking(DockerHost machine){
-        String result =   Executor.executeRemote(machine.getUri().getHost(), "sudo calicoctl node stop");
+    public void stopNetworking(){
+        String result =   Executor.execute("sudo calicoctl node stop");
         // TODO check for errors
     }
 
     @Override
-    public void startNetworking(DockerHost machine){
-        String result =   Executor.executeRemote(machine.getUri().getHost(), "sudo calicoctl node start");
+    public void startNetworking(){
+        String result =   Executor.execute("sudo calicoctl node start");
         // TODO check for errors
     }
 
