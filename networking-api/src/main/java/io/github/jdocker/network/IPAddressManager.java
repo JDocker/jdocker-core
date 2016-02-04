@@ -29,14 +29,16 @@ public interface IPAddressManager {
     /**
      * Create a network to be used by containers with complete visibility.
      * @param name the network name, not null.
+     * @return the command output.
      */
-    void createNetwork(String name);
+    String createNetwork(String name);
 
     /**
      * Remove the defined network.
      * @param name the network's name, not null.
+     * @return the command output.
      */
-    void removeNetwork(String name);
+    String removeNetwork(String name);
 
     /**
      * Get the currently defined network ids.
@@ -81,7 +83,7 @@ public interface IPAddressManager {
      * @param ip the ip address, not null
      * @return the command output
      */
-    void releaseIP(String ip);
+    String releaseIP(String ip);
 
     /**
      * This command prints information about a given IP address, such as special attributes defined for the IP or

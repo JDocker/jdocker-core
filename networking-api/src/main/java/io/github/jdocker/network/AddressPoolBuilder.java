@@ -23,7 +23,7 @@ import java.util.Objects;
 /**
  * Created by atsticks on 19.01.16.
  */
-public class NetworkBuilder {
+public class AddressPoolBuilder {
 
     String name;
     String cidrExpression;
@@ -32,36 +32,36 @@ public class NetworkBuilder {
     boolean ipip;
     boolean outgoing;
 
-    public NetworkBuilder(String name){
+    public AddressPoolBuilder(String name){
         this.name = Objects.requireNonNull(name);
     }
 
-    public NetworkBuilder setName(String name) {
+    public AddressPoolBuilder setName(String name) {
         this.name = name;
         return this;
     }
 
-    public NetworkBuilder setCidrExpression(String cidrExpression) {
+    public AddressPoolBuilder setCidrExpression(String cidrExpression) {
         this.cidrExpression = cidrExpression;
         return this;
     }
 
-    public NetworkBuilder setStartIP(String startIP) {
+    public AddressPoolBuilder setStartIP(String startIP) {
         this.startIP = startIP;
         return this;
     }
 
-    public NetworkBuilder setEndIP(String endIP) {
+    public AddressPoolBuilder setEndIP(String endIP) {
         this.endIP = endIP;
         return this;
     }
 
-    public NetworkBuilder setIpip(boolean ipip) {
+    public AddressPoolBuilder setIpip(boolean ipip) {
         this.ipip = ipip;
         return this;
     }
 
-    public NetworkBuilder setOutgoing(boolean outgoing) {
+    public AddressPoolBuilder setOutgoing(boolean outgoing) {
         this.outgoing = outgoing;
         return this;
     }

@@ -20,13 +20,16 @@ package io.github.jdocker.network;
 
 import com.spotify.docker.client.messages.ContainerInfo;
 import io.github.jdocker.DockerHost;
+import io.github.jdocker.common.Executor;
 import io.github.jdocker.network.NetworkingStatus;
 import io.github.jdocker.network.SecurityProfile;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
- * Created by atsticks on 19.01.16.
+ * Component interface for defining the SDN for containers/docker nodes.
+ * @see IPAddressManager
  */
 public interface NetworkManager {
 
@@ -44,8 +47,9 @@ public interface NetworkManager {
 
     /**
      * Installs all needed required to run networking with the given machine.
+     * @return the command output
      */
-    void installNetworking();
+    String installNetworking();
 
     /**
      * Determines if the networking software is locally installed on the machine.
@@ -55,13 +59,72 @@ public interface NetworkManager {
 
     /**
      * Stops networking on a given docker machine.
+     * @return the command output
      */
-    void stopNetworking();
+    String stopNetworking();
 
     /**
      * Starts networking on a given docker machine.
+     * @return the command output
      */
-    void startNetworking();
+    String startNetworking();
+
+    /**
+     * Adds the given container to the calico net, using eth1 as iface.
+     * @param container the container to be added to the calico net, not null.
+     * @param ip an ip address, a CIDR expression (192.168.27.0/24), or a IP type (ipv4, ipv6)
+     * @return the command output
+     */
+    String addIPToContainer(ContainerInfo container, String ip);
+
+    /**
+     * Adds the given container to the calico net, using eth1 as iface.
+     * @param container the container to be added to the calico net, not null.
+     * @param pool an ip address pool, to select an address from, not null
+     * @return the command output
+     */
+    String addIPToContainer(ContainerInfo container, AddressPool pool);
+
+
+    /**
+     * Adds an ip address to the given (deployed) container.
+     * @param container the container to be added to the calico net, not null.
+     * @param pool the address pool to be used (192.168.27.0/24), or a IP type (ipv4, ipv6)
+     * @param iface optional, default is eth1
+     * @return the command output
+     */
+    String addIPToContainer(ContainerInfo container, AddressPool pool, String iface);
+
+    /**
+     * Adds an ip address to the given (deployed) container.
+     * @param container the container to be added to the calico net, not null.
+     * @param ip an ip address, a CIDR expression (192.168.27.0/24), or a IP type (ipv4, ipv6)
+     * @param iface optional, default is eth1
+     * @return the command output
+     */
+    String addIPToContainer(ContainerInfo container, String ip, String iface);
+
+    String removeIPFromContainer(ContainerInfo container, String ip);
+
+    String removeIPFromContainer(ContainerInfo container, String ip, String iface);
+
+    String removeContainerFromSDN(ContainerInfo container);
+
+    Collection<String> getEndpointsForHost(String hostname);
+
+    String getEndpoint(String endpointId);
+
+    String getAllEndpoints();
+
+    String getEndpoints(ContainerInfo container);
+
+    String setSecurityProfiles(String endpoint, SecurityProfile... profiles);
+
+    String addSecurityProfiles(String endpoint, SecurityProfile... profiles);
+
+    String removeSecurityProfiles(String endpoint, SecurityProfile... profiles);
+
+    Collection<String> getSecurityProfiles(String endpoint);
 
     /**
      * Create a security profile. Security profiles can be reused for several containers.

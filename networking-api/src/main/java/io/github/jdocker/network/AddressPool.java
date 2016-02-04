@@ -31,7 +31,7 @@ public class AddressPool {
     private boolean outgoing;
 
 
-    AddressPool(NetworkBuilder builder){
+    AddressPool(AddressPoolBuilder builder){
         this.name = builder.name;
         this.cidrExpression = builder.cidrExpression;
         this.endIP = builder.endIP;
@@ -64,8 +64,8 @@ public class AddressPool {
         return ipip;
     }
 
-    public static NetworkBuilder builder(String name){
-        return new NetworkBuilder(name);
+    public static AddressPoolBuilder builder(String name){
+        return new AddressPoolBuilder(name);
     }
 
     @Override
