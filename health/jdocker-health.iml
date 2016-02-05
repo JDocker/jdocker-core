@@ -65,6 +65,8 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.6.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.6.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.6.0" level="project" />
+    <orderEntry type="library" name="Maven: io.vertx:vertx-service-proxy:3.2.0" level="project" />
+    <orderEntry type="library" name="Maven: io.vertx:vertx-lang-js:3.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tamaya:tamaya-api:0.1-incubating" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tamaya:tamaya-core:0.1-incubating" level="project" />
     <orderEntry type="library" name="Maven: org.apache.geronimo.specs:geronimo-json_1.0_spec:1.0-alpha-1" level="project" />

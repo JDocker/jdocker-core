@@ -16,20 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.github.jdocker;
+package io.github.jdocker.agent;
 
 /**
- * The possible status of a io.github.jdocker.machine.
+ * The status of a DockerAgent.
  */
-public enum MachineStatus {
-    /** The io.github.jdocker.machine has a problem. */
-    Error,
-    /** The io.github.jdocker.machine is not running. */
-    Stopped,
-    /** The io.github.jdocker.machine is running and active. */
+public enum DockerAgentStatus {
     Running,
-    /** There was some unknown error that prevented the evaluation of the status, e.g. docker-io.github.jdocker.machine is
-     * not installed.
-     */
-    Unknown
+    Stopped,
+    Failed
 }

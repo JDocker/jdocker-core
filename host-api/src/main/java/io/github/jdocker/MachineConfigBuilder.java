@@ -46,7 +46,7 @@ public final class MachineConfigBuilder {
     private Machine installationTarget;
 
     /**
-     * Specify arbitrary flags to include with the created engine in the form {@code flag=value}. Maps to
+     * Specify arbitrary flags to include with the created engine in the form {@code flag=cardinality}. Maps to
      * {@code --engine-opt [--engine-opt option --engine-opt option] }.
      */
      private Set<String> engineOptions = new HashSet<>();
@@ -55,7 +55,7 @@ public final class MachineConfigBuilder {
      */
     private Set<String> insecureRegistries = new HashSet<>();
     /** Labels assigned to the io.github.jdocker.machine, maps to {@code --engine-label [--engine-label option --engine-label option] }. */
-    private Set<String> labels = new HashSet<>();
+    private Map<String,String> labels = new HashMap<String,String>();
     /** THe storage driver to be used, maps to {@code --engine-storage-driver }. */
     private String storageDriver;
     /** Define environment variables for the engine. Maps to
@@ -98,8 +98,8 @@ public final class MachineConfigBuilder {
         return Collections.unmodifiableSet(insecureRegistries);
     }
 
-    public Set<String> getLabels() {
-        return Collections.unmodifiableSet(labels);
+    public Map<String,String> getLabels() {
+        return Collections.unmodifiableMap(labels);
     }
 
     public String getStorageDriver() {
@@ -143,7 +143,12 @@ public final class MachineConfigBuilder {
     }
 
     public MachineConfigBuilder addLabel(String label) {
-        this.labels.add(label);
+        this.labels.put(label, label);
+        return this;
+    }
+
+    public MachineConfigBuilder addLabel(String key, String value) {
+        this.labels.put(key, value);
         return this;
     }
 
