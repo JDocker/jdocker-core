@@ -34,10 +34,11 @@ public class CalicoIPAMSpi implements IPAddressManager {
     private Set<String> networks = new TreeSet<>();
 
     @Override
-    public void createNetwork(String name){
+    public String createNetwork(String name){
         this.networks.add(name);
         String result =  Executor.execute("docker network create -d calico --ipam-driver calico " + name);
         // TODO check for errors
+        return result;
     }
 
     /**
@@ -45,10 +46,11 @@ public class CalicoIPAMSpi implements IPAddressManager {
      * @param name the network's name, not null.
      */
     @Override
-    public void removeNetwork(String name){
+    public String removeNetwork(String name){
         this.networks.remove(name);
         String result =  Executor.execute("docker network remove " + name);
         // TODO check for errors
+        return result;
     }
 
     /**
@@ -132,9 +134,10 @@ public class CalicoIPAMSpi implements IPAddressManager {
      * @return the command output
      */
     @Override
-    public void releaseIP(String ip){
+    public String releaseIP(String ip){
         String result = Executor.execute("calicoctl ipam release " + ip);
         // TODO check for errors
+        return result;
     }
 
     /**

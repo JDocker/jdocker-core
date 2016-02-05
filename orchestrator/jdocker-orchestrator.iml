@@ -54,6 +54,7 @@
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.52" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.52" level="project" />
+    <orderEntry type="module" module-name="jdocker-networking-api" />
     <orderEntry type="library" name="Maven: io.vertx:vertx-core:3.2.0" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-common:4.0.33.Final" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.0.33.Final" level="project" />

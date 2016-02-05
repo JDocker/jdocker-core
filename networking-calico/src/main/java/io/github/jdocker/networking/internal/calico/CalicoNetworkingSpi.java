@@ -22,6 +22,7 @@ import com.spotify.docker.client.messages.ContainerInfo;
 import io.github.jdocker.DockerHost;
 import io.github.jdocker.common.Executor;
 import io.github.jdocker.common.ServiceContextManager;
+import io.github.jdocker.network.AddressPool;
 import io.github.jdocker.network.NetworkingStatus;
 import io.github.jdocker.network.SecurityProfile;
 import io.github.jdocker.network.NetworkManager;
@@ -32,7 +33,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by atsticks on 18.01.16.
+ * Implementation of the NetworkManager based on Calico.
  */
 public class CalicoNetworkingSpi implements NetworkManager {
 
@@ -60,73 +61,67 @@ public class CalicoNetworkingSpi implements NetworkManager {
     }
 
     @Override
-    public void installNetworking(){
+    public String installNetworking(){
         String result = Executor.execute("calicoctl node --libnetwork");
         // TODO check for errors
+        return result;
     }
 
     @Override
-    public void stopNetworking(){
+    public String stopNetworking(){
         String result =   Executor.execute("sudo calicoctl node stop");
         // TODO check for errors
+        return result;
     }
 
     @Override
-    public void startNetworking(){
+    public String startNetworking(){
         String result =   Executor.execute("sudo calicoctl node start");
         // TODO check for errors
+        return result;
     }
 
-
-    /**
-     * Adds the given container to the calico net, using eth1 as iface.
-     * @param container the container to be added to the calico net, not null.
-     * @param ip an ip address, a CIDR expression (192.168.27.0/24), or a IP type (ipv4, ipv6)
-     * @return
-     */
-    public void addContainer(ContainerInfo container, String ip){
-        addContainer(container, ip, null);
+    @Override
+    public String addIPToContainer(ContainerInfo container, String ip){
+        return addIPToContainer(container, ip, null);
     }
 
-    /**
-     * Adds the given container to the calico net.
-     * @param container the container to be added to the calico net, not null.
-     * @param ip an ip address, a CIDR expression (192.168.27.0/24), or a IP type (ipv4, ipv6)
-     * @param iface optional, default is eth1
-     * @return
-     */
-    public static void addContainer(ContainerInfo container, String ip, String iface){
+    @Override
+    public String addIPToContainer(ContainerInfo container, AddressPool pool){
+        return addIPToContainer(container, pool.getCidrExpression(), null);
+    }
+
+    @Override
+    public String addIPToContainer(ContainerInfo container, AddressPool pool, String iface){
+        return addIPToContainer(container, pool.getCidrExpression(), iface);
+    }
+
+    @Override
+    public String addIPToContainer(ContainerInfo container, String ip, String iface){
         String result = null;
         if(iface==null) {
             result = Executor.execute("calicoctl container add " + container.id() + " " + ip);
         }
         result = Executor.execute("calicoctl container add " + container.id() + " " + ip + " --interface=" + iface);
         // TODO check for errors
+        return result;
     }
 
-    public static String addIPToContainer(ContainerInfo container, String ip){
+    @Override
+    public String removeIPFromContainer(ContainerInfo container, String ip){
         return addIPToContainer(container, ip, null);
     }
 
-    public static String addIPToContainer(ContainerInfo container, String ip, String iface){
-        if(iface==null) {
-            Executor.execute("calicoctl container " + container.id() + " ip add " + ip + " --interface=" + iface);
-        }
-        return Executor.execute("calicoctl container " + container.id() + " ip add " + ip);
-    }
-
-    public static String removeIPFromContainer(ContainerInfo container, String ip){
-        return addIPToContainer(container, ip, null);
-    }
-
-    public static String removeIPFromContainer(ContainerInfo container, String ip, String iface){
+    @Override
+    public String removeIPFromContainer(ContainerInfo container, String ip, String iface){
         if(iface==null) {
             Executor.execute("calicoctl container " + container.id() + " ip remove " + ip + " --interface=" + iface);
         }
         return Executor.execute("calicoctl container " + container.id() + " ip remove " + ip);
     }
 
-    public static String removeContainer(ContainerInfo container){
+    @Override
+    public String removeContainerFromSDN(ContainerInfo container){
         return Executor.execute("calicoctl container remove "+container.id());
     }
 
@@ -237,37 +232,37 @@ public class CalicoNetworkingSpi implements NetworkManager {
 //        return Collections.emptySet();
     }
 
-    public static Collection<String> getEndpointsForHost(String hostname){
+    public Collection<String> getEndpointsForHost(String hostname){
         String data = Executor.execute("calicoctl endpoint show --host="+hostname+" --orchestrator=docker");
         // TODO parse. see Endpoint class
         return Collections.emptySet();
     }
 
-    public static String getEndpoint(String endpointId){
+    public String getEndpoint(String endpointId){
         return Executor.execute("calicoctl endpoint show --endpoint="+endpointId+" --orchestrator=docker");
     }
 
-    public static String getAllEndpoints(){
+    public String getAllEndpoints(){
         return Executor.execute("calicoctl endpoint show");
     }
 
-    public static String getEndpoints(ContainerInfo container){
+    public String getEndpoints(ContainerInfo container){
         return Executor.execute("calicoctl container "+container.id()+" endpoint show");
     }
 
-    public static String setSecurityProfiles(String endpoint, SecurityProfile... profiles){
+    public String setSecurityProfiles(String endpoint, SecurityProfile... profiles){
         return Executor.execute("calicoctl endpoint "+endpoint+" profile set " + formatProfiles(profiles));
     }
 
-    public static String addSecurityProfiles(String endpoint, SecurityProfile... profiles){
+    public String addSecurityProfiles(String endpoint, SecurityProfile... profiles){
         return Executor.execute("calicoctl endpoint "+endpoint+" profile append " + formatProfiles(profiles));
     }
 
-    public static String removeSecurityProfiles(String endpoint, SecurityProfile... profiles){
+    public String removeSecurityProfiles(String endpoint, SecurityProfile... profiles){
         return Executor.execute("calicoctl endpoint "+endpoint+" profile remove " + formatProfiles(profiles));
     }
 
-    public static Collection<String> getSecurityProfiles(String endpoint){
+    public Collection<String> getSecurityProfiles(String endpoint){
         String result = Executor.execute("calicoctl endpoint "+endpoint+" profile show");
         // TODO parse result:
 //        +------+
