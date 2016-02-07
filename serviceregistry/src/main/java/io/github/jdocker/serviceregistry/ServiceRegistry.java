@@ -24,16 +24,8 @@ import io.vertx.core.json.Json;
 import io.vertx.core.shareddata.AsyncMap;
 import io.vertx.core.shareddata.LocalMap;
 import io.vertx.core.shareddata.SharedData;
-import org.apache.tamaya.Configuration;
-import org.apache.tamaya.ConfigurationProvider;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A list of endpoints to for service registration.
@@ -109,14 +101,14 @@ public class ServiceRegistry extends AbstractVerticle {
 
     private void putToMap(Endpoint endpoin, SharedData sd) {
         LocalMap<String, String> map1 = sd.getLocalMap(REG_NAME);
-        map1.putIfAbsent(endpoin.getName(), Json.encode(endpoin));
+        map1.putIfAbsent(endpoin.getServiceName(), Json.encode(endpoin));
     }
 
     private void putToClusteredMap(Endpoint endpoin, SharedData sd) {
         sd.<String, String>getClusterWideMap(REG_NAME, res -> {
             if (res.succeeded()) {
                 AsyncMap<String, String> map = res.result();
-                map.putIfAbsent(endpoin.getName(), Json.encode(endpoin), result -> {
+                map.putIfAbsent(endpoin.getServiceName(), Json.encode(endpoin), result -> {
                     if (result.succeeded()) {
 
                     } else {
@@ -129,44 +121,42 @@ public class ServiceRegistry extends AbstractVerticle {
         });
     }
 
-
-
-    private final Map<String, List<Endpoint>> services = new ConcurrentHashMap<>();
-
-    @Deprecated // this impl. won't work in Vert.x
-    public List<Endpoint> getEndpoints(String service) {
-        Configuration config = ConfigurationProvider.getConfiguration();
-        String serviceRefs = config.get("jdocker.services");
-        for (String endpointRef : serviceRefs.split(",")) {
-            for (String endpointName : endpointRef.split(",")) {
-                endpointName = endpointName.trim();
-                String endpointDef = config.get("jdocker.endpoint." + endpointName);
-                if (endpointDef != null) {
-                    URI endpointURI = null; // protocol:/host_port/domain?tags=a,b,c,d&healthCheck=checkId
-                    try {
-                        endpointURI = new URI(endpointDef);
-                    } catch (URISyntaxException e) {
-                        e.printStackTrace();
-                    }
-                    Endpoint ep = new Endpoint(endpointName, endpointURI);
-                }
-            }
-        }
-        List<Endpoint> endpoints = services.get(service);
-        if (endpoints == null) {
-            return Collections.emptyList();
-        }
-        return services.get(service);
-    }
-
-
-    public Set<String> getServices() {
-        return services.keySet();
-    }
+//    private final Map<String, List<Endpoint>> services = new ConcurrentHashMap<>();
+//
+//    @Deprecated // this impl. won't work in Vert.x
+//    public List<Endpoint> getEndpoints(String service) {
+//        Configuration config = ConfigurationProvider.getConfiguration();
+//        String serviceRefs = config.get("jdocker.services");
+//        for (String endpointRef : serviceRefs.split(",")) {
+//            for (String endpointName : endpointRef.split(",")) {
+//                endpointName = endpointName.trim();
+//                String endpointDef = config.get("jdocker.endpoint." + endpointName);
+//                if (endpointDef != null) {
+//                    URI endpointURI = null; // protocol:/host_port/domain?tags=a,b,c,d&healthCheck=checkId
+//                    try {
+//                        endpointURI = new URI(endpointDef);
+//                    } catch (URISyntaxException e) {
+//                        e.printStackTrace();
+//                    }
+//                    Endpoint ep = new Endpoint(endpointName, endpointURI);
+//                }
+//            }
+//        }
+//        List<Endpoint> endpoints = services.get(service);
+//        if (endpoints == null) {
+//            return Collections.emptyList();
+//        }
+//        return services.get(service);
+//    }
+//
+//
+//    public Set<String> getServices() {
+//        return services.keySet();
+//    }
 
     public static void main(String[] args) {
         // DeploymentOptions options = new DeploymentOptions().setInstances(1).setConfig(new JsonObject().put("host","localhost"));
-        // Vertx.vertx().deployVerticle(ServiceRegistry.class.getName(),options);
+        // Vertx.vertx().deployVerticle(ServiceRegistry.class.getServiceName(),options);
 
         VertxOptions vOpts = new VertxOptions();
         DeploymentOptions options = new DeploymentOptions().setInstances(1);
