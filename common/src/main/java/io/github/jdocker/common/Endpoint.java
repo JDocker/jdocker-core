@@ -18,6 +18,7 @@ package io.github.jdocker.common;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -36,44 +37,70 @@ public class Endpoint implements Serializable{
     private Set<String> tags = new HashSet<>();
     /** Flag if the endpoint instance is closed/read-only. */
     private boolean closed;
+    private java.net.URI uri;
 
 
-    public Endpoint(final String serviceName) {
+    /**
+     * Creates a new endpoint without specific location.
+     * @param serviceName the endpoint/service name.
+     * @param tags optional tags, e.g. {@code tags=stage:test,zone:rz,zone:ch}.
+     */
+    public Endpoint(final String serviceName, Collection<String> tags) {
         this.serviceName = Objects.requireNonNull(serviceName);
+        if(tags!=null){
+            this.tags.addAll(tags);
+        }
     }
 
+    /**
+     * Creates a new endpoint.
+     * @param serviceName the endpoint/service name.
+     * @param protocol the protocol
+     * @param port the port
+     * @param host the host
+     * @param tags optional tags, e.g. {@code tags=stage:test,zone:rz,zone:ch}.
+     */
     public Endpoint(final String serviceName, final String protocol, final int port,
-                    final String host) {
+                    final String host, String path, String query, Collection<String> tags) throws URISyntaxException {
         this.serviceName = Objects.requireNonNull(serviceName);
         this.protocol = Objects.requireNonNull(protocol);
         this.port = port;
         this.host = Objects.requireNonNull(host);
         this.tags.addAll(tags);
+        this.uri = new URI(protocol, null, host, port, path, query, null);
     }
 
-    public Endpoint(String endpointName, URI endpointURI) {
+    /**
+     * Creates a new endpoint.
+     * @param serviceName the endpoint/service name.
+     * @param endpointURI the URI including tags modelled by an optional {@code tags} parameter containing a
+     *                    comma separated list of tags, e.g. {@code tags=stage:test,zone:rz,zone:ch}.
+     */
+    public Endpoint(String serviceName, URI endpointURI, Collection<String> tags) {
         String query = endpointURI.getQuery();
-        Set<String> tags = new HashSet<>();
-        if (query != null) {
-            StringTokenizer tokenizer = new StringTokenizer(query, "&", false);
-            while (tokenizer.hasMoreTokens()) {
-                String token = tokenizer.nextToken();
-                int index = token.indexOf('=');
-                if (index > 0) {
-                    String key = token.substring(0, index);
-                    String value = token.substring(index + 1);
-                    if (token.startsWith("labels")) {
-                        tags.addAll(Arrays.asList(value.split(",")));
-                    }
-                }
-            }
-        }
-        this.serviceName = Objects.requireNonNull(endpointName);
+        this.serviceName = Objects.requireNonNull(serviceName);
         this.protocol = Objects.requireNonNull(endpointURI.getScheme());
         this.port = endpointURI.getPort();
         this.domain = endpointURI.getPath();
         this.host = Objects.requireNonNull(endpointURI.getHost());
-        this.tags.addAll(tags);
+        if(tags!=null) {
+            this.tags.addAll(tags);
+        }
+        this.uri = endpointURI;
+    }
+
+    /**
+     * Checks if any of the given tags is present in the current tag set.
+     * @param tags the tags to check.
+     * @return true, if any tag is present.
+     */
+    public boolean matchTags(Collection<String> tags){
+        for(String tag:tags){
+            if(!tags.contains(tag)){
+                return false;
+            }
+        }
+        return true;
     }
 
     public String getHost() {
@@ -150,6 +177,10 @@ public class Endpoint implements Serializable{
         return this;
     }
 
+    public URI getURI() {
+        return uri;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -177,4 +208,6 @@ public class Endpoint implements Serializable{
                 ", tags=" + tags +
                 '}';
     }
+
+
 }
