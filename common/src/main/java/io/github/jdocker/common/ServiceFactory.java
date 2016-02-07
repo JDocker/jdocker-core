@@ -49,6 +49,34 @@ public interface ServiceFactory {
                                      EndpointResolutionPolicy endpointResolutionPolicy);
 
     /**
+     * Creates a new accessor for the given service, the effective endpoints are looked up dynamically from
+     * the {@link ServiceDiscovery}.
+     * @param serviceType the target type to be created. The service name is derived from the fully qualified type name.
+     * @param endpointResolutionPolicy the resolution policy
+     * @param tags the tags for filtering the result
+     * @param <T> the type
+     * @return a proxy instance of the given type T, not null.
+     * @throws IllegalStateException if no such proxy can be created.
+     */
+    default <T> T getService(Class<T> serviceType, Collection<String> tags,
+                     EndpointResolutionPolicy endpointResolutionPolicy){
+        return getService(serviceType, serviceType.getName(), tags, endpointResolutionPolicy);
+    }
+
+    /**
+     * Creates a new accessor for the given service, the effective endpoints are looked up dynamically from
+     * the {@link ServiceDiscovery}. Hereby the random resolution policy is applied.
+     * @param serviceType the target type to be created. The service name is derived from the fully qualified type name.
+     * @param tags the tags for filtering the result
+     * @param <T> the type
+     * @return a proxy instance of the given type T, not null.
+     * @throws IllegalStateException if no such proxy can be created.
+     */
+    default <T> T getService(Class<T> serviceType, Collection<String> tags){
+        return getService(serviceType, serviceType.getName(), tags, EndpointResolutionPolicy.RANDOM_RESOLUTIONPOLICY);
+    }
+
+    /**
      * Creates/returns a Java API accessor based on the registered accessor factory SPIs using the default
      * resolution policy (random).
      * @param endpoints the endpoints
