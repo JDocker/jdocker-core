@@ -64,7 +64,7 @@ public final class ServiceContextManager {
             throw new IllegalStateException("ServiceContext not loadable", e);
         }
 //        if (highestServiceContext==null){
-//            String serviceContext = System.getProperty(ServiceContext.class.getName());
+//            String serviceContext = System.getProperty(ServiceContext.class.getServiceName());
 //            if(serviceContext != null){
 //                try{
 //                    highestServiceContext = (ServiceContext)Class.forName(serviceContext).newInstance();

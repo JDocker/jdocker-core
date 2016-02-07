@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class Endpoint implements Serializable{
 
-    private final String name;
+    private final String serviceName;
     private String protocol;
     private int port;
     private String domain;
@@ -38,13 +38,13 @@ public class Endpoint implements Serializable{
     private boolean closed;
 
 
-    public Endpoint(final String name) {
-        this.name = Objects.requireNonNull(name);
+    public Endpoint(final String serviceName) {
+        this.serviceName = Objects.requireNonNull(serviceName);
     }
 
-    public Endpoint(final String name, final String protocol, final int port,
+    public Endpoint(final String serviceName, final String protocol, final int port,
                     final String host) {
-        this.name = Objects.requireNonNull(name);
+        this.serviceName = Objects.requireNonNull(serviceName);
         this.protocol = Objects.requireNonNull(protocol);
         this.port = port;
         this.host = Objects.requireNonNull(host);
@@ -68,7 +68,7 @@ public class Endpoint implements Serializable{
                 }
             }
         }
-        this.name = Objects.requireNonNull(endpointName);
+        this.serviceName = Objects.requireNonNull(endpointName);
         this.protocol = Objects.requireNonNull(endpointURI.getScheme());
         this.port = endpointURI.getPort();
         this.domain = endpointURI.getPath();
@@ -84,8 +84,8 @@ public class Endpoint implements Serializable{
         return domain;
     }
 
-    public String getName() {
-        return name;
+    public String getServiceName() {
+        return serviceName;
     }
 
     public String getProtocol() {
@@ -157,19 +157,19 @@ public class Endpoint implements Serializable{
 
         Endpoint endpoint = (Endpoint) o;
 
-        return name.equals(endpoint.name);
+        return serviceName.equals(endpoint.serviceName);
 
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return serviceName.hashCode();
     }
 
     @Override
     public String toString() {
         return "Endpoint{" +
-                "name='" + name + '\'' +
+                "serviceName='" + serviceName + '\'' +
                 ", protocol='" + protocol + '\'' +
                 ", port=" + port +
                 ", domain='" + domain + '\'' +
