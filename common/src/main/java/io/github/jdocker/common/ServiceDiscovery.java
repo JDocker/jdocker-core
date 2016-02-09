@@ -28,17 +28,16 @@ public interface ServiceDiscovery {
     /**
      * Selects a random endpoint from the list of known endpoints for the given service and returns it.
      * @param serviceName the service name, not null.
-     * @param tags
      * @return an endpoint to be used.
      */
-    Collection<Endpoint> getEndpoints(String serviceName, Collection<String> tags);
+    Collection<Endpoint> getEndpoints(String serviceName);
 
     /**
      * Selects a random endpoint from the list of known endpoints for the given service and returns it.
      * @param serviceName the service name, not null.
      * @return an endpoint to be used.
      */
-    Endpoint getEndpoint(String serviceName, Collection<String> tags);
+    Endpoint getEndpoint(String serviceName);
 
     /**
      * Creates a new endpoint with the given service name and URI and registers it.
@@ -46,7 +45,7 @@ public interface ServiceDiscovery {
      * @param endpoint the endpoint URI, not null.
      * @return
      */
-    Endpoint registerEndpoint(String serviceName, URI endpoint, Collection<String> tags);
+    Endpoint registerEndpoint(String serviceName, URI endpoint);
 
     /**
      * Registers the given endpoint.
@@ -57,54 +56,14 @@ public interface ServiceDiscovery {
     /**
      * Removes an endpoint with the given service name and URI.
      * @param serviceName service name, not null.
-     * @param endpoint the endpoint URI, not null.
      * @return
      */
-    Endpoint removeEndpoint(String serviceName, URI endpoint, Collection<String> tags);
+    Endpoint removeEndpoint(String serviceName);
 
     /**
      * Removes an endpoint.
      * @param endpoint the endpoint, not null.
      */
     void removeEndpoint(Endpoint endpoint);
-
-    /**
-     * Get a collection of all currently known endpoint matching the given service name.
-     * @param serviceName the service name, not null.
-     * @param tags the tags for constraining the collection.
-     * @return an endpoint to be used.
-     */
-    default Collection<Endpoint> getEndpoints(String serviceName, String... tags){
-        return getEndpoints(serviceName, Arrays.asList(tags));
-    }
-
-    /**
-     * Selects a random endpoint from the list of known endpoints for the given service and returns it.
-     * @param serviceName the service name, not null.
-     * @return an endpoint to be used.
-     */
-    default Endpoint getEndpoint(String serviceName, String... tags){
-        return getEndpoint(serviceName, Arrays.asList(tags));
-    }
-
-    /**
-     * Creates a new endpoint with the given service name and URI and registers it.
-     * @param serviceName service name, not null.
-     * @param endpoint the endpoint URI, not null.
-     * @return
-     */
-    default Endpoint registerEndpoint(String serviceName, URI endpoint, String... tags){
-        return registerEndpoint(serviceName, endpoint, Arrays.asList(tags));
-    }
-
-    /**
-     * Removes an endpoint with the given service name and URI.
-     * @param serviceName service name, not null.
-     * @param endpoint the endpoint URI, not null.
-     * @return
-     */
-    default Endpoint removeEndpoint(String serviceName, URI endpoint, String... tags){
-        return removeEndpoint(serviceName, endpoint, Arrays.asList(tags));
-    }
 
 }
