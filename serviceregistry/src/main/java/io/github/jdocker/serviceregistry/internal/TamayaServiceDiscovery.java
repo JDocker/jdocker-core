@@ -22,7 +22,7 @@ public class TamayaServiceDiscovery implements ServiceDiscovery{
     private static final Logger LOG = Logger.getLogger(TamayaServiceDiscovery.class.getName());
 
     @Override
-    public Collection<Endpoint> getEndpoints(String serviceName, Collection<String> tags) {
+    public Collection<Endpoint> getEndpoints(String serviceName) {
         List<Endpoint> endpoints = new ArrayList<>();
         Configuration config = ConfigurationProvider.getConfiguration();
         String serviceRefs = config.get("jd.service."+serviceName);
@@ -34,10 +34,7 @@ public class TamayaServiceDiscovery implements ServiceDiscovery{
                     URI endpointURI = null; // protocol:/host_port/domain?tags=a,b,c,d&healthCheck=checkId
                     try {
                         endpointURI = new URI(endpointDef);
-                        Endpoint ep = new Endpoint(serviceName, endpointURI, tags);
-                        if(ep.matchTags(tags)) {
-                            endpoints.add(ep);
-                        }
+                        Endpoint ep = new Endpoint(serviceName, endpointURI);
                     } catch (URISyntaxException e) {
                         LOG.log(Level.SEVERE, "Failed to read endpoint from config: " +endpointDef, e);
                     }
@@ -48,13 +45,13 @@ public class TamayaServiceDiscovery implements ServiceDiscovery{
     }
 
     @Override
-    public Endpoint getEndpoint(String serviceName, Collection<String> tags) {
-        return EndpointResolutionPolicy.RANDOM_RESOLUTIONPOLICY.resolve(getEndpoints(serviceName, tags));
+    public Endpoint getEndpoint(String serviceName) {
+        return EndpointResolutionPolicy.RANDOM_RESOLUTIONPOLICY.resolve(getEndpoints(serviceName));
     }
 
     @Override
-    public Endpoint registerEndpoint(String serviceName, URI endpoint, Collection<String> tags) {
-        Endpoint ep = new Endpoint(serviceName, endpoint, tags);
+    public Endpoint registerEndpoint(String serviceName, URI endpoint) {
+        Endpoint ep = new Endpoint(serviceName, endpoint);
         registerEndpoint(ep);
         return ep;
     }
@@ -62,37 +59,27 @@ public class TamayaServiceDiscovery implements ServiceDiscovery{
     @Override
     public void registerEndpoint(Endpoint endpoint) {
         String serviceRefs = MutableTestPropertySource.getSharedConfig().get("jd.services."+endpoint.getServiceName());
-        if(serviceRefs==null){
+        if(serviceRefs==null || !serviceRefs.contains(endpoint.getHost())){
             serviceRefs = endpoint.getServiceName();
             // create service and endpoint entry.
-            MutableTestPropertySource.getSharedConfig().put("jd.service." + endpoint.getServiceName()+".hosts", endpoint.getHost());
-            MutableTestPropertySource.getSharedConfig().put("jd.endpoint." + endpoint.getHost()+".uri", endpoint.getURI().toString());
-            MutableTestPropertySource.getSharedConfig().put("jd.endpoint." + endpoint.getHost()+".tags", endpoint.getTags().toString());
-        }
-        else if(!serviceRefs.contains(endpoint.getHost())){
-            // only update endpoint
-            serviceRefs = serviceRefs + ","+endpoint.getHost();
-            MutableTestPropertySource.getSharedConfig().put("jd.service." + endpoint.getServiceName()+".hosts", serviceRefs);
-            MutableTestPropertySource.getSharedConfig().put("jd.endpoint." + endpoint.getHost()+".uri", endpoint.getURI().toString());
-            MutableTestPropertySource.getSharedConfig().put("jd.endpoint." + endpoint.getHost()+".tags", endpoint.getTags().toString());
+            MutableTestPropertySource.getSharedConfig().put("jd.service." + endpoint.getServiceName(), endpoint.getURI().toString());
         }
         else{
             // add service entry and update/add entrypoint
             MutableTestPropertySource.getSharedConfig().put("jd.endpoint." + endpoint.getHost()+".uri", endpoint.getURI().toString());
-            MutableTestPropertySource.getSharedConfig().put("jd.endpoint." + endpoint.getHost()+".tags", endpoint.getTags().toString());
         }
     }
 
     @Override
-    public Endpoint removeEndpoint(String serviceName, URI endpoint, Collection<String> tags) {
-        Endpoint ep = new Endpoint(serviceName, endpoint, tags);
+    public Endpoint removeEndpoint(String serviceName) {
+        Endpoint ep = getEndpoint(serviceName);
         removeEndpoint(ep);
         return ep;
     }
 
     @Override
     public void removeEndpoint(Endpoint endpoint) {
-        String serviceRefs = MutableTestPropertySource.getSharedConfig().get("jd.services."+endpoint.getServiceName());
+        String serviceRefs = MutableTestPropertySource.getSharedConfig().remove("jd.services."+endpoint.getServiceName());
         if(serviceRefs==null){
             return;
         }
@@ -101,12 +88,7 @@ public class TamayaServiceDiscovery implements ServiceDiscovery{
         }
         else{
             // remove service entry and update/add entrypoint
-            serviceRefs = serviceRefs.replace(","+endpoint.getHost()+",", "");
-            serviceRefs = serviceRefs.replace(endpoint.getHost()+",", "");
-            serviceRefs = serviceRefs.replace(","+endpoint.getHost(), "");
-            MutableTestPropertySource.getSharedConfig().put("jd.service." + endpoint.getServiceName()+".hosts", serviceRefs);
-            MutableTestPropertySource.getSharedConfig().remove("jd.endpoint." + endpoint.getHost()+".uri");
-            MutableTestPropertySource.getSharedConfig().remove("jd.endpoint." + endpoint.getHost()+".tags");
+            MutableTestPropertySource.getSharedConfig().put("jd.service." + endpoint.getServiceName(), endpoint.toString());
         }
     }
 }

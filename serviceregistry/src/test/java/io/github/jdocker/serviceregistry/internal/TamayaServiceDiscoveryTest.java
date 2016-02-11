@@ -18,37 +18,35 @@ public class TamayaServiceDiscoveryTest {
 
     @Test
     public void testGetEndpoints() throws Exception {
-        discovery.getEndpoints("testGetEndpoint", "test");
+        discovery.getEndpoints("testGetEndpoint");
     }
 
     @Test
     public void testGetEndpoint() throws Exception {
-        discovery.registerEndpoint("testGetEndpoint", new URI("http://localhost.8080/myService"), "test");
-        discovery.getEndpoint("testGetEndpoint", "test");
+        discovery.registerEndpoint("testGetEndpoint", new URI("http://localhost.8080/myService"));
+        discovery.getEndpoint("testGetEndpoint");
     }
 
     @Test
     public void testRegisterEndpoint() throws Exception {
-        discovery.registerEndpoint("test", new URI("http://localhost.8080/myService"), "test");
+        discovery.registerEndpoint("test", new URI("http://localhost.8080/myService"));
     }
 
     @Test
     public void testRegisterEndpoint1() throws Exception {
-        discovery.registerEndpoint("test", new URI("http://localhost.8080/myService"), "test");
+        discovery.registerEndpoint("test", new URI("http://localhost.8080/myService"));
     }
 
     @Test
     public void testRemoveEndpoint() throws Exception {
-        discovery.registerEndpoint("testRemoveEndpoint", new URI("http://localhost.8080/myService"), "test");
-        discovery.removeEndpoint("testRemoveEndpoint", new URI("http://localhost.8080/myService"), "test");
+        discovery.registerEndpoint("testRemoveEndpoint", new URI("http://localhost.8080/myService"));
+        discovery.removeEndpoint("testRemoveEndpoint");
     }
 
     @Test
     public void testRemoveEndpoint1() throws Exception {
-        Set<String> labels = new HashSet<>();
-        labels.add("test");
-        Endpoint ep = new Endpoint("testRemoveEndpoint", new URI("http://localhost.8080/myService"), labels);
-        discovery.registerEndpoint("testRemoveEndpoint", new URI("http://localhost.8080/myService"), "test");
+        Endpoint ep = new Endpoint("testRemoveEndpoint", new URI("http://localhost.8080/myService"));
+        discovery.registerEndpoint("testRemoveEndpoint", new URI("http://localhost.8080/myService"));
         discovery.removeEndpoint(ep);
     }
 }
